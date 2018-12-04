@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# PyCharm Project specific
+.idea/*
+
+# Ignore IML file for project since it contains path dependent information
+*.iml
