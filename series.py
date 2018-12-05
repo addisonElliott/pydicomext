@@ -16,7 +16,8 @@ class Series(list):
             self.description = None
             self.number = None
 
-            # TODO Store scan information here too?
+        self._multiFrameData = None
+        self._isMultiFrame = 12
 
         list.__init__(self)
 
@@ -32,4 +33,4 @@ class Series(list):
         return self.__str__()
 
     # TODO Consider a function that tells best method type and volume type of this
-
+    # TODO: Handle multi-frame enhanced DICOM data
