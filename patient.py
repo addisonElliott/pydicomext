@@ -66,16 +66,16 @@ class Patient(dict):
     Sex: %s
     Other IDs: %s
     Other Names: %s
-    Age: %i
-    Size: %i
-    Weight: %i
+    Age: %s
+    Size: %s
+    Weight: %s
     Ethnic Group: %s
     Comments: %s
     Identity Removed: %s
     Position: %s
     Studies:
 """ % (self.ID, self.name, self.issuerOfID, self.birthDate, self.birthTime, self.sex, self.otherIDs, self.otherNames,
-        self.age, self.size, self.weight, self.ethnicGroup, self.comments, self.identityRemoved, self.position)
+            self.age, self.size, self.weight, self.ethnicGroup, self.comments, self.identityRemoved, self.position)
 
         for _, study in self.items():
             str_ += '\t\t\t' + str(study).replace('\n', '\n\t\t\t') + '\n'
