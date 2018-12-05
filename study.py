@@ -7,14 +7,14 @@ class Study(dict):
     def __init__(self, DCMImage=None):
         if DCMImage:
             self.ID = DCMImage.get('StudyInstanceUID')
-            self.Date = DCMImage.get('StudyDate')
-            self.Time = DCMImage.get('StudyTime')
-            self.Description = DCMImage.get('StudyDescription')
+            self.date = DCMImage.get('StudyDate')
+            self.time = DCMImage.get('StudyTime')
+            self.description = DCMImage.get('StudyDescription')
         else:
             self.ID = None
-            self.Date = None
-            self.Time = None
-            self.Description = None
+            self.date = None
+            self.time = None
+            self.description = None
 
         dict.__init__(self)
 
@@ -34,3 +34,19 @@ class Study(dict):
             raise TypeError('More than one patient is available')
 
         return next(iter(self.values()))
+
+    def __str__(self):
+        str_ = """Study %s
+    Date: %s
+    Time: %s
+    Desc: %s
+    Series:
+""" % (self.ID, self.date, self.time, self.description)
+
+        for _, series in self.items():
+            str_ += '\t\t\t' + str(series).replace('\n', '\n\t\t\t') + '\n'
+
+        return str_
+
+    def __repr__(self):
+        return self.__str__()

@@ -20,3 +20,15 @@ class DicomDir(dict):
             raise TypeError('More than one patient is available')
 
         return next(iter(self.values()))
+
+    # def __str__(self):
+    #     x = 'Patients:\n'
+
+    #     for UID, patient in self:
+    #         x += 'Patient %s:'
+    #         pass
+
+    #     return super().__str__()
+
+    # def __repr__(self):
+    #     return super().__repr__()
