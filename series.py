@@ -16,9 +16,6 @@ class Series(list):
             self.Description = None
             self.Number = None
 
-        self.method = MethodType.Unknown
-        self.type = VolumeType.Unknown
-
         list.__init__(self)
 
     # TODO Consider a function that tells best method type and volume type of this

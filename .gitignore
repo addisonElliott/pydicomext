@@ -111,3 +111,6 @@ venv.bak/
 
 # Ignore VS Code specific files
 .vscode
+
+# Ignore tests folder
+tests
