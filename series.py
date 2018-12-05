@@ -21,6 +21,7 @@ class Series(list):
 
         list.__init__(self)
 
+    # TODO Consider removing this
     def isMethodAvailable(self, method):
         """
         Checks if a given method is available from the dataset in the class. This checks the DICOM header for specified
@@ -43,6 +44,7 @@ class Series(list):
         else:
             raise TypeError('Invalid method specified')
 
+    # TODO Consider removing this too
     def getBestType(self):
         """
         Select the best method to use for combining the slices in the dataset. The methods are checked in the following

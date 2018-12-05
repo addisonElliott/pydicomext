@@ -3,7 +3,7 @@ from pydicom.dataset import Dataset
 from .patient import Patient
 
 
-class Patients(dict):
+class DicomDir(dict):
     def add(self, var):
         if isinstance(var, Patient):
             self[var.ID] = var
@@ -13,7 +13,7 @@ class Patients(dict):
             self[patient.ID] = patient
             return patient
         else:
-            raise TypeError("Can only add patient or DICOM image to Patients dictionary")
+            raise TypeError('Can only add patient or DICOM image to DicomDir dictionary')
 
     def only(self):
         if len(self) != 1:

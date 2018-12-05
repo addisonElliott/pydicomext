@@ -27,7 +27,7 @@ class Study(dict):
             self[series.ID] = series
             return series
         else:
-            raise TypeError("Can only add series or DICOM image to Study dictionary")
+            raise TypeError('Can only add series or DICOM image to Study dictionary')
 
     def series(self, ID):
         if ID is not None:

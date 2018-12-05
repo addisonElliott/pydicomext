@@ -49,8 +49,9 @@ class Patient(dict):
             self[study.ID] = study
             return study
         else:
-            raise TypeError("Can only add study or DICOM image to Patient dictionary")
+            raise TypeError('Can only add study or DICOM image to Patient dictionary')
 
+    # TODO: Is this used?
     def study(self, ID):
         if ID is not None:
             return self[ID]

@@ -108,3 +108,6 @@ venv.bak/
 
 # Ignore IML file for project since it contains path dependent information
 *.iml
+
+# Ignore VS Code specific files
+.vscode

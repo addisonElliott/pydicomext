@@ -4,13 +4,13 @@ import pydicom
 import pydicom.filereader
 
 from .patient import Patient
-from .patients import Patients
+from .dicomDir import DicomDir
 from .series import Series
 from .study import Study
 
 
-def loadDirectory(path, patientID=None, studyID=None, seriesID=None):
-    patients = Patients()
+def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):
+    patients = DicomDir()
     patient = None
     study = None
     series = None
@@ -18,10 +18,14 @@ def loadDirectory(path, patientID=None, studyID=None, seriesID=None):
     # Search for DICOM files within directory
     # Append each DICOM file to a list
     DCMFilenames = []
-    for dirName, subdirs, filenames in os.walk(path):
+    for dirName, subdirs, filenames in os.walk(directory):
         for filename in filenames:
             if filename.endswith('.dcm'):
                 DCMFilenames.append(os.path.join(dirName, filename))
+
+    # Throw an exception if there are no DICOM files in the given directory
+    if not DCMFilenames:
+        raise Exception('No DICOM files were found in the directory: %s' % directory)
 
     # Loop through each DICOM filename
     for filename in DCMFilenames:
