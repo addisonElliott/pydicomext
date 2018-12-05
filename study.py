@@ -44,7 +44,7 @@ class Study(dict):
 """ % (self.ID, self.date, self.time, self.description)
 
         for _, series in self.items():
-            str_ += '\t\t\t' + str(series).replace('\n', '\n\t\t\t') + '\n'
+            str_ += '\t\t' + str(series).replace('\n', '\n\t\t') + '\n'
 
         return str_
 

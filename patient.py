@@ -78,7 +78,7 @@ class Patient(dict):
             self.age, self.size, self.weight, self.ethnicGroup, self.comments, self.identityRemoved, self.position)
 
         for _, study in self.items():
-            str_ += '\t\t\t' + str(study).replace('\n', '\n\t\t\t') + '\n'
+            str_ += '\t\t' + str(study).replace('\n', '\n\t\t') + '\n'
 
         return str_
 

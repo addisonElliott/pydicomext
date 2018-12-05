@@ -21,14 +21,13 @@ class DicomDir(dict):
 
         return next(iter(self.values()))
 
-    # def __str__(self):
-    #     x = 'Patients:\n'
+    def __str__(self):
+        str_ = """DicomDir\n"""
 
-    #     for UID, patient in self:
-    #         x += 'Patient %s:'
-    #         pass
+        for _, patient in self.items():
+            str_ += '\t' + str(patient).replace('\n', '\n\t') + '\n'
 
-    #     return super().__str__()
+        return str_
 
-    # def __repr__(self):
-    #     return super().__repr__()
+    def __repr__(self):
+        return self.__str__()
