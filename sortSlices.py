@@ -55,7 +55,7 @@ def sortSlices(datasets, method=MethodType.Unknown, reverse=False):
         # ImageNumber has unknown z spacing, no units
         zSpacing = 0.0
     else:
-        raise TypeError('Invalid method')
+        raise TypeError('Invalid method specified: %s' % method)
 
     # Check for oddities in the spacing per slice
     # Any spacing that deviate by a large amount or are close to zero indicate something is wrong

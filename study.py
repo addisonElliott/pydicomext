@@ -29,12 +29,6 @@ class Study(dict):
         else:
             raise TypeError('Can only add series or DICOM image to Study dictionary')
 
-    def series(self, ID):
-        if ID is not None:
-            return self[ID]
-
-        return None
-
     def only(self):
         if len(self) != 1:
             raise TypeError('More than one patient is available')

@@ -51,13 +51,6 @@ class Patient(dict):
         else:
             raise TypeError('Can only add study or DICOM image to Patient dictionary')
 
-    # TODO: Is this used?
-    def study(self, ID):
-        if ID is not None:
-            return self[ID]
-
-        return None
-
     def only(self):
         if len(self) != 1:
             raise TypeError('More than one study is available')

@@ -10,7 +10,7 @@ from .study import Study
 
 
 def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):
-    patients = DicomDir()
+    dicomDir = DicomDir()
     patient = None
     study = None
     series = None
@@ -41,10 +41,10 @@ def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):
             patient = Patient(DCMImage)
         else:
             # Check for existing patient, if not add new patient
-            if DCMImage.PatientID in patients:
-                patient = patients[DCMImage.PatientID]
+            if DCMImage.PatientID in dicomDir:
+                patient = dicomDir[DCMImage.PatientID]
             else:
-                patient = patients.add(DCMImage)
+                patient = dicomDir.add(DCMImage)
 
         if studyID:
             if DCMImage.StudyInstanceUID != studyID:
@@ -80,4 +80,4 @@ def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):
     elif seriesID:
         return series
     else:
-        return patients
+        return dicomDir
