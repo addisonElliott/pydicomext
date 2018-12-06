@@ -1,21 +1,34 @@
-from enum import Enum
+from enum import Enum, auto
 
 import numpy as np
 
 
+# TODO Need to reevaluate this because we may have N-D volumes that are spatial temporal all at once.
 class VolumeType(Enum):
-    Unknown = 0
-    Spatial = 1
-    Temporal = 2
+    Unknown = auto()
+    Spatial = auto()
+    Temporal = auto()
 
 
 class MethodType(Enum):
-    Unknown = 0
-    SliceLocation = 1
-    PatientLocation = 2
-    TriggerTime = 3
-    AcquisitionDateTime = 4
-    ImageNumber = 5
+    Unknown = auto()
+
+    # Standard DICOM
+    SliceLocation = auto()
+    PatientLocation = auto()
+    TriggerTime = auto()
+    AcquisitionDateTime = auto()
+    ImageNumber = auto()
+
+    # Multi-frame DICOM
+    StackID = auto()
+    StackPosition = auto()
+    TemporalPositionIndex = auto()
+    FrameAcquisitionNumber = auto()
+    MFPatientLocation = auto()
+    MFAcquisitionDateTime = auto()
+    CardiacTriggerTime = auto()
+    CardiacPercentage = auto()
 
 
 def isMethodAvailable(datasets, method):

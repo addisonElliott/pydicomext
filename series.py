@@ -85,12 +85,6 @@ class Series(list):
             datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
             datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
 
-    def append(self, value):
-        # if 'NumberOfFrames' in value:
-            # self._hasMultiFrame = True
-
-        return super().append(value)
-
     def __str__(self):
         return """Series %s
     Date: %s
@@ -104,4 +98,3 @@ class Series(list):
         return self.__str__()
 
     # TODO Consider a function that tells best method type and volume type of this
-    # TODO: Handle multi-frame enhanced DICOM data

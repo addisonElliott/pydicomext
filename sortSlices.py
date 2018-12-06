@@ -9,7 +9,32 @@ logger = logging.getLogger(__name__)
 pydicom.config.datetime_conversion = True
 
 
-def sortSlices(datasets, method=MethodType.Unknown, reverse=False):
+def sortSlices(series, method=MethodType.Unknown, reverse=False):
+    """Sorts datasets in series based on its metadata
+
+    Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
+    spatial or temporal based.
+
+    Parameters
+    ----------
+    series : Series
+        [description]
+    method : MethodType, optional
+        [description] (the default is MethodType.Unknown, which [default_description])
+    reverse : bool, optional
+        Whether or not to reverse the sort, where the default sorting order is ascending (the default is False)
+    """
+
+    if len(series) == 0:
+        raise TypeError('Series must contain at least one dataset')
+    
+    # TODO Get best method to use when sorting the slices
+    # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
+
+    pass
+
+
+def sortSlices2(datasets, method=MethodType.Unknown, reverse=False):
     """
     Sorts the given dataset based on the parameters.
     """
