@@ -31,30 +31,54 @@ class MethodType(Enum):
     CardiacPercentage = auto()
 
 
-def isMethodAvailable(datasets, method):
-    """
-    Checks if a given method is available from the dataset in the class. This checks the DICOM header for specified
-    tags for each of the DICOM images.
+def isMethodValid(series, method):
+    """Determines if a method is valid for a particular series
 
-    :param datasets: List of DICOM images to be combined into a 3D volume
-    :param method: Method to check whether it is available. Must be option from VolumeType
-    :return: Returns true if method is available in dataset, otherwise it returns false
+    Checks if a given method is available for sorting or combining a series. This checks the DICOM header of each
+    dataset in the series for the specified tag based on the method given.
+
+    Parameters
+    ----------
+    series : Series
+        Series of datasets to check
+    method : MethodType
+        Method to check
+
+    Raises
+    ------
+    TypeError
+        If invalid method is given or if the series is empty
+
+    Returns
+    -------
+    bool
+        True if the method is a valid method of sorting/combining the given series, False otherwise
     """
+
+    if len(series) == 0:
+        raise TypeError('Series must contain at least one dataset')
+
+    # Can only use methods available for multi-series and not multi-series
+    # Return false if attempting to use method outside of valid range
+    if (method < MethodType.StackID and series.isMultiFrame) or \
+            (method >= MethodType.StackID and not series.isMultiFrame):
+        return False
 
     if method == MethodType.TriggerTime:
-        return all(['TriggerTime' in d for d in datasets])
+        return all(['TriggerTime' in d for d in series])
     elif method == MethodType.AcquisitionDateTime:
-        return all(['AcquisitionDateTime' in d for d in datasets])
+        return all(['AcquisitionDateTime' in d for d in series])
     elif method == MethodType.ImageNumber:
-        return all(['ImageNumber' in d for d in datasets])
+        return all(['ImageNumber' in d for d in series])
     elif method == MethodType.SliceLocation:
-        return all(['SliceLocation' in d for d in datasets])
+        return all(['SliceLocation' in d for d in series])
     elif method == MethodType.PatientLocation:
-        return all(['ImageOrientationPatient' in d and 'ImagePositionPatient' in d for d in datasets])
+        return all(['ImageOrientationPatient' in d and 'ImagePositionPatient' in d for d in series])
     else:
         raise TypeError('Invalid method specified')
 
 
+# TODO Evaluate if I need this function
 def getTypeFromMethod(method):
     """
     Select the type of volume based off the method used to combine slices
@@ -67,35 +91,47 @@ def getTypeFromMethod(method):
         return VolumeType.Unknown
 
 
-def getBestMethod(datasets):
-    """
-    Select the best method to use for combining the slices in the dataset. The methods are checked in the following
-    order:
-        SliceLocation, PatientLocation, TriggerTime, AcquisitionDateTime, ImageNumber
-    Thus, it follows that the slices are checked for spatial differences first before temporal differences. This
-    yields the best results because spatial slices can still be acquired at different times and not be considered a
-    time series.
+def getBestMethod(series):
+    """Select best method to use for sorting/combining datasets in a series
 
-    :return: Returns MethodType value representing the best method to use for combining slices
+    Parameters
+    ----------
+    series : Series
+
+    Raises
+    ------
+    TypeError
+        If unable to find the best method or if the series is empty
+
+    Returns
+    -------
+    list(MethodType)
+        Return list of best method type to use
     """
-    # noinspection PyUnusedLocal
+
+    if len(series) == 0:
+        raise TypeError('Series must contain at least one dataset')
+
     method = MethodType.Unknown
 
-    if isMethodAvailable(datasets, MethodType.SliceLocation) \
-            and any([datasets[0].SliceLocation != d.SliceLocation for d in datasets]):
+    # For this, since we may be dealing with multidimensional data, we want to see how many groups we would have
+    # Also, not sure I want to check if the method is valid since it consists of calling all twice, can do all in one run I think
+
+    if isMethodValid(series, MethodType.SliceLocation) \
+            and any([series[0].SliceLocation != d.SliceLocation for d in series]):
         method = MethodType.SliceLocation
-    elif isMethodAvailable(datasets, MethodType.PatientLocation) \
-            and any([datasets[0].ImageOrientationPatient != d.ImageOrientationPatient
-                     or datasets[0].ImagePositionPatient != d.ImagePositionPatient for d in datasets]):
+    elif isMethodValid(series, MethodType.PatientLocation) \
+            and any([series[0].ImageOrientationPatient != d.ImageOrientationPatient
+                     or series[0].ImagePositionPatient != d.ImagePositionPatient for d in series]):
         method = MethodType.PatientLocation
-    elif isMethodAvailable(datasets, MethodType.TriggerTime) \
-            and any([datasets[0].TriggerTime != d.TriggerTime for d in datasets]):
+    elif isMethodValid(series, MethodType.TriggerTime) \
+            and any([series[0].TriggerTime != d.TriggerTime for d in series]):
         method = MethodType.TriggerTime
-    elif isMethodAvailable(datasets, MethodType.AcquisitionDateTime) \
-            and any([datasets[0].AcquisitionDateTime != d.AcquisitionDateTime for d in datasets]):
+    elif isMethodValid(series, MethodType.AcquisitionDateTime) \
+            and any([series[0].AcquisitionDateTime != d.AcquisitionDateTime for d in series]):
         method = MethodType.AcquisitionDateTime
-    elif isMethodAvailable(datasets, MethodType.ImageNumber) \
-            and any([datasets[0].ImageNumber != d.ImageNumber for d in datasets]):
+    elif isMethodValid(series, MethodType.ImageNumber) \
+            and any([series[0].ImageNumber != d.ImageNumber for d in series]):
         method = MethodType.ImageNumber
     else:
         raise TypeError('Unable to find best method')
