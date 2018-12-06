@@ -67,7 +67,7 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False):
             keys.append([d.FrameContentSequence[0].TemporalPositionIndex for d in series])
         elif method == MethodType.FrameAcquisitionNumber:
             keys.append([d.FrameContentSequence[0].FrameAcquisitionNumber for d in series])
-        elif method == MethodType.MFPatientLocation:        
+        elif method == MethodType.MFPatientLocation:
             # TODO Do me
             sliceCosines, slicePositions = slicePositionsFromPatientInfo(series)
             keys.append(slicePositions)
@@ -85,16 +85,17 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False):
     # Zip up the keyAttrs so that each iterator in the list will be: (key1, key2, key3, ..., series)
     # Then sort that list which will sort based on key1, then key2, etc
     # Next we unzip the list (by zipping it again) so that each list is the entire list of keys for that method
-    sortedKeys = list(zip(*sorted(zip(*keys), reverse=reverse)))
-    
+    sortedKeys = list(zip(*sorted(zip(*keys), key=lambda x: x[:-1], reverse=reverse)))
+
     # Sorted series is the last element and the remaining items are the keys used for sorting
     sortedSeries, sortedKeys = sortedKeys[-1], sortedKeys[:-1]
-    sortedKeys = sortedKeys[:-1]
-    
-    diffs = list(map(np.diff, sortedKeys))
+    # sortedKeys = sortedKeys[:-1]
+
+    # diffs = list(map(np.diff, sortedKeys))
 
     # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
-    return sortedSeries, diffs
+    # return sortedSeries, diffs
+    return sortedKeys
 
 
 def sortSlices2(datasets, method=MethodType.Unknown, reverse=False):
