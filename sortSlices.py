@@ -89,7 +89,20 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False):
 
     # Sorted series is the last element and the remaining items are the keys used for sorting
     sortedSeries, sortedKeys = sortedKeys[-1], sortedKeys[:-1]
-    # sortedKeys = sortedKeys[:-1]
+
+    c = len(sortedSeries)
+
+    for x in sortedKeys[:-1]:
+        diffs = np.diff(x)
+
+        y = np.argwhere(diffs != 0).T
+        z = y[0]
+        # Should all be the same, if not throw an error!
+        # np.all(np.diff(y))
+
+        dim[0] = c / z
+        c = z
+        pass
 
     # diffs = list(map(np.diff, sortedKeys))
 
