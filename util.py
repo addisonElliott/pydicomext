@@ -108,3 +108,10 @@ def slicePositionsFromPatientInfo(datasets):
 
     # Slice location is dot product of slice cosines and the image patient position
     return sliceCosines, [np.dot(sliceCosines, d.ImagePositionPatient) for d in datasets]
+
+
+def datasetDeleteOrRemove(dataset, key, value):
+    if value is not None:
+        dataset[key] = value
+    elif key in dataset:
+        del dataset[key]

@@ -2,13 +2,13 @@ from .util import *
 
 
 class Series(list):
-    def __init__(self, DCMImage=None):
-        if DCMImage:
-            self.ID = DCMImage.get('SeriesInstanceUID')
-            self.date = DCMImage.get('SeriesDate')
-            self.time = DCMImage.get('SeriesTime')
-            self.description = DCMImage.get('SeriesDescription')
-            self.number = DCMImage.get('SeriesNumber')
+    def __init__(self, dataset=None):
+        if dataset:
+            self.ID = dataset.get('SeriesInstanceUID')
+            self.date = dataset.get('SeriesDate')
+            self.time = dataset.get('SeriesTime')
+            self.description = dataset.get('SeriesDescription')
+            self.number = dataset.get('SeriesNumber')
         else:
             self.ID = None
             self.date = None
@@ -70,23 +70,20 @@ class Series(list):
                 if hasattr(dataset, 'parent'):
                     continue
 
+                # Update fields in dataset, remove optional ones if value is None
                 dataset.SeriesInstanceUID = ID
-
-                # TODO Do i need to delete this?
-                dataset.SeriesDate = date
-                dataset.SeriesTime = time
-                dataset.SeriesDescription = description
-                dataset.SeriesNumber = number
+                datasetDeleteOrRemove(dataset, 'SeriesDate', date)
+                datasetDeleteOrRemove(dataset, 'SeriesTime', time)
+                datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
+                datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
 
         for dataset in self._multiFrameData:
+            # Update fields in dataset, remove optional ones if value is None
             dataset.SeriesInstanceUID = ID
-
-            # TODO Do i need to delete this?
-            dataset.SeriesDate = date
-            dataset.SeriesTime = time
-            dataset.SeriesDescription = description
-            dataset.SeriesNumber = number
-        pass
+            datasetDeleteOrRemove(dataset, 'SeriesDate', date)
+            datasetDeleteOrRemove(dataset, 'SeriesTime', time)
+            datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
+            datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
 
     def __str__(self):
         return """Series %s

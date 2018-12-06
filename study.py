@@ -4,12 +4,12 @@ from .series import Series
 
 
 class Study(dict):
-    def __init__(self, DCMImage=None):
-        if DCMImage:
-            self.ID = DCMImage.get('StudyInstanceUID')
-            self.date = DCMImage.get('StudyDate')
-            self.time = DCMImage.get('StudyTime')
-            self.description = DCMImage.get('StudyDescription')
+    def __init__(self, dataset=None):
+        if dataset:
+            self.ID = dataset.get('StudyInstanceUID')
+            self.date = dataset.get('StudyDate')
+            self.time = dataset.get('StudyTime')
+            self.description = dataset.get('StudyDescription')
         else:
             self.ID = None
             self.date = None
