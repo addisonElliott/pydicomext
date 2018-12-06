@@ -217,6 +217,15 @@ def slicePositionsFromPatientInfo(datasets):
 
 
 def datasetDeleteOrRemove(dataset, key, value):
+    """Delete key from dataset if value is None, otherwise set key to value
+    
+    Parameters
+    ----------
+    dataset : Dataset
+    key : str
+    value : Object
+    """
+
     if value is not None:
         dataset[key] = value
     elif key in dataset:
