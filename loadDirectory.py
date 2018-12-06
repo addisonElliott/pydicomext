@@ -70,6 +70,36 @@ def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):
             else:
                 series = study.add(DCMImage)
 
+        # Regular append isn't the best here, I'm thinking append will be used for adding/altering lists
+        # but even then, I want to check if we are adding multiple series IDs and such
+        #
+        # Update ID, description, on Series. Make it None if multiple times
+        # Check for MultiFrame data, handle accordingly.
+        # But, there may be cases where we know this is true/false and don't want to update.
+        #
+        # Should just the usual append check stuff?
+        # Append/extend...
+        # Update function, should we call this manually and it will do that stuff
+        # Checking for multiframe data should only be done once because otherwise it may overwrite info in the list...
+        #
+        # Okay, thinking of a function that will be public but probably only loadDirectory will call to handle the multiframe data
+        # at the end of loading everything.
+        # Something like series.loadMultiFrame() <--- Good this will imply that it's going to overwrite any data in series
+        # Plus, it will allow in the very **off chance** that there are multiple multiframes per series.
+        #
+        # Next function I need is something to clear the series specific data. Maybe more appropriately is a function that will check
+        # this information.
+        # updateSeriesInfo() <-- Why does this matter? Why keep this data valid?
+        # Why not have a mutable series where these values are set to false anyhow?
+        # Well, we will let the user be the one that calls this function after they make large changes to it.
+        # updateSeries(startNewIndex=0) <-- Index indicates at what position the data is new, typically this will be negative like
+        # -1 means one new item at the end
+        # Useful if you just add a few items to the end and dont want to recheck everything
+        # TODO Rename DCMImage to dataset! Confuses me
+        #
+        # Also, maybe those parameters should be properties that derive from cached values. That way if you try to change it, it will go
+        # through the trouble of changing the children data and DCM data itself.
+
         # Append image to series
         series.append(DCMImage)
 
