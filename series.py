@@ -47,7 +47,7 @@ class Series(list):
             self._multiFrameData.append(dataset)
             self.remove(dataset)
 
-    @property()
+    @property
     def isMultiframe(self):
         return len(self._multiFrameData) == 0
 
