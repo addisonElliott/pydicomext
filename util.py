@@ -30,6 +30,24 @@ class MethodType(Enum):
     CardiacTriggerTime = auto()
     CardiacPercentage = auto()
 
+    allStandard = [SliceLocation, PatientLocation, TriggerTime, AcquisitionDateTime, ImageNumber]
+    allMultiFrame = [StackID, StackPosition, TemporalPositionIndex, FrameAcquisitionNumber, MFPatientLocation, 
+                     MFAcquisitionDateTime, CardiacTriggerTime, CardiacPercentage]
+
+    @property
+    def isMultiFrame(self):
+        return self.value >= self.StackID.value
+
+    # Slice Location or patient location
+    # Trigger time or acquisition date time
+    # Otherwise, use image number
+    # Otherwise fail
+    #
+    # Stack ID on its own
+    # Stack position or MF patient location or frame acquisiton number
+    # Temporal position index or Cardiac trigger time or cardiac percentage or acquisition date time
+    # Otherwise fail
+
 
 def isMethodValid(series, method):
     """Determines if a method is valid for a particular series
@@ -58,22 +76,43 @@ def isMethodValid(series, method):
     if len(series) == 0:
         raise TypeError('Series must contain at least one dataset')
 
-    # Can only use methods available for multi-series and not multi-series
-    # Return false if attempting to use method outside of valid range
-    if (method < MethodType.StackID and series.isMultiFrame) or \
-            (method >= MethodType.StackID and not series.isMultiFrame):
+    if method == MethodType.Unknown:
+        raise TypeError('Unknown method type is invalid')
+
+    # Method and series must both be multi frame or not
+    if method.isMultiFrame != series.isMultiFrame:
         return False
 
-    if method == MethodType.TriggerTime:
+    if method == MethodType.SliceLocation:
+        return all(['SliceLocation' in d for d in series])
+    elif method == MethodType.PatientLocation:
+        return all(['ImageOrientationPatient' in d and 'ImagePositionPatient' in d for d in series])
+    elif method == MethodType.TriggerTime:
         return all(['TriggerTime' in d for d in series])
     elif method == MethodType.AcquisitionDateTime:
         return all(['AcquisitionDateTime' in d for d in series])
     elif method == MethodType.ImageNumber:
-        return all(['ImageNumber' in d for d in series])
-    elif method == MethodType.SliceLocation:
-        return all(['SliceLocation' in d for d in series])
-    elif method == MethodType.PatientLocation:
-        return all(['ImageOrientationPatient' in d and 'ImagePositionPatient' in d for d in series])
+        return all(['InstanceNumber' in d for d in series])
+    elif method == MethodType.StackID:
+        return all(['StackID' in d.FrameContentSequence[0] and d.FrameContentSequence[0].StackID.isdigit()
+                    for d in series])
+    elif method == MethodType.StackPosition:
+        return all(['InStackPositionNumber' in d.FrameContentSequence[0] for d in series])
+    elif method == MethodType.TemporalPositionIndex:
+        return all(['TemporalPositionIndex' in d.FrameContentSequence[0] for d in series])
+    elif method == MethodType.FrameAcquisitionNumber:
+        return all(['FrameAcquisitionNumber' in d.FrameContentSequence[0] for d in series])
+    elif method == MethodType.MFPatientLocation:
+        return all(['ImageOrientationPatient' in d.PlaneOrientationSequence[0] and
+                    'ImagePositionPatient' in d.PlanePositionSequence[0] for d in series])
+    elif method == MethodType.MFAcquisitionDateTime:
+        return all(['FrameAcquisitionDateTime' in d.FrameContentSequence[0] for d in series])
+    elif method == MethodType.CardiacTriggerTime:
+        return all(['CardiacSynchronizationSequence' in d and
+                    'NominalCardiacTriggerDelayTime' in d.CardiacSynchronizationSequence[0] for d in series])
+    elif method == MethodType.CardiacPercentage:
+        return all(['CardiacSynchronizationSequence' in d and
+                    'NominalPercentageOfCardiacPhase' in d.CardiacSynchronizationSequence[0] for d in series])
     else:
         raise TypeError('Invalid method specified')
 
@@ -117,6 +156,22 @@ def getBestMethod(series):
     # For this, since we may be dealing with multidimensional data, we want to see how many groups we would have
     # Also, not sure I want to check if the method is valid since it consists of calling all twice, can do all in one run I think
 
+    methods = []
+    checkMethods = MethodType.allMultiFrame if series.isMultiFrame else MethodType.allStandard
+
+    # If slice location is not present on either one, then stop
+    for d in series:
+        for method in checkMethods:
+            if method == MethodType.TriggerTime:
+                if 'TriggerTime' not in d:
+                    checkMethods.remove(method)
+                elif series[0].TriggerTime != d.TriggerTime:
+                    methods.append(method)
+                    # TODO Also remove other temporal ones here!
+                    checkMethods.remove(method)
+
+    # return methods
+
     if isMethodValid(series, MethodType.SliceLocation) \
             and any([series[0].SliceLocation != d.SliceLocation for d in series]):
         method = MethodType.SliceLocation
@@ -135,6 +190,8 @@ def getBestMethod(series):
         method = MethodType.ImageNumber
     else:
         raise TypeError('Unable to find best method')
+
+    # TODO Add new method types here!
 
     return method
 
