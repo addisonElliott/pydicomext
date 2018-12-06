@@ -49,7 +49,7 @@ class Series(list):
 
     @property
     def isMultiframe(self):
-        return len(self._multiFrameData) == 0
+        return len(self._multiFrameData) > 0
 
     def clearSeries(self):
         self.ID = None
@@ -85,13 +85,20 @@ class Series(list):
             datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
             datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
 
+    def append(self, value):
+        # if 'NumberOfFrames' in value:
+            # self._hasMultiFrame = True
+
+        return super().append(value)
+
     def __str__(self):
         return """Series %s
     Date: %s
     Time: %s
     Desc: %s
     Number: %i
-    [%i datasets]""" % (self.ID, self.date, self.time, self.description, self.number, len(self))
+    [%i datasets]%s""" % (self.ID, self.date, self.time, self.description, self.number, len(self),
+                          (' (Multi-frame)' if self.isMultiframe else ''))
 
     def __repr__(self):
         return self.__str__()
