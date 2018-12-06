@@ -36,51 +36,62 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False):
     if not isinstance(methods, list):
         methods = [methods]
 
-    attrs = []
+    # This list will contain additional lists/iterators that are the keys to sort the series by
+    keys = []
+
+    # Loop through all of the methods and add the key values to the keyAttrs list
     for method in methods:
         # Check all of the specified methods for any invalid ones
         if not isMethodValid(series, method):
             raise TypeError('Invalid method specified: %s' % method)
 
         if method == MethodType.SliceLocation:
-            attrs.append([d.SliceLocation for d in series])
+            keys.append([d.SliceLocation for d in series])
         elif method == MethodType.PatientLocation:
+            # TODO Go through and clean the function up
             # Get slice positions for each object
             sliceCosines, slicePositions = slicePositionsFromPatientInfo(series)
 
-            attrs.append(slicePositions)
+            keys.append(slicePositions)
         elif method == MethodType.TriggerTime:
-            attrs.append([d.TriggerTime for d in series])
+            keys.append([d.TriggerTime for d in series])
         elif method == MethodType.AcquisitionDateTime:
-            attrs.append([d.AcquisitionDateTime for d in series])
+            keys.append([d.AcquisitionDateTime for d in series])
         elif method == MethodType.ImageNumber:
-            attrs.append([d.InstanceNumber for d in series])
+            keys.append([d.InstanceNumber for d in series])
         elif method == MethodType.StackID:
-            attrs.append([int(d.FrameContentSequence[0].StackID) for d in series])
+            keys.append([int(d.FrameContentSequence[0].StackID) for d in series])
         elif method == MethodType.StackPosition:
-            attrs.append([d.FrameContentSequence[0].InStackPositionNumber for d in series])
+            keys.append([d.FrameContentSequence[0].InStackPositionNumber for d in series])
         elif method == MethodType.TemporalPositionIndex:
-            attrs.append([d.FrameContentSequence[0].TemporalPositionIndex for d in series])
+            keys.append([d.FrameContentSequence[0].TemporalPositionIndex for d in series])
         elif method == MethodType.FrameAcquisitionNumber:
-            attrs.append([d.FrameContentSequence[0].FrameAcquisitionNumber for d in series])
+            keys.append([d.FrameContentSequence[0].FrameAcquisitionNumber for d in series])
         elif method == MethodType.MFPatientLocation:        
             # TODO Do me
             sliceCosines, slicePositions = slicePositionsFromPatientInfo(series)
-            attrs.append(slicePositions)
+            keys.append(slicePositions)
         elif method == MethodType.MFAcquisitionDateTime:
-            attrs.append([d.FrameContentSequence[0].MFAcquisitionDateTime for d in series])
+            keys.append([d.FrameContentSequence[0].MFAcquisitionDateTime for d in series])
         elif method == MethodType.CardiacTriggerTime:
-            attrs.append([d.CardiacSynchronizationSequence[0].NominalCardiacTriggerDelayTime for d in series])
+            keys.append([d.CardiacSynchronizationSequence[0].NominalCardiacTriggerDelayTime for d in series])
         elif method == MethodType.CardiacPercentage:
-            attrs.append([d.CardiacSynchronizationSequence[0].NominalPercentageOfCardiacPhase for d in series])
+            keys.append([d.CardiacSynchronizationSequence[0].NominalPercentageOfCardiacPhase for d in series])
 
-    attrs.append(series)
-    sortedAttrs = list(zip(*sorted(zip(*attrs), reverse=reverse)))
+    # Append the actual series to the end of the list so they are sorted as well
+    keys.append(series)
 
-    sortedSeries = sortedAttrs[-1]
-
-    sortedAttrs = sortedAttrs[:-1]
-    diffs = list(map(np.diff, sortedAttrs))
+    # Lots is happening here, but let me break it up one by one
+    # Zip up the keyAttrs so that each iterator in the list will be: (key1, key2, key3, ..., series)
+    # Then sort that list which will sort based on key1, then key2, etc
+    # Next we unzip the list (by zipping it again) so that each list is the entire list of keys for that method
+    sortedKeys = list(zip(*sorted(zip(*keys), reverse=reverse)))
+    
+    # Sorted series is the last element and the remaining items are the keys used for sorting
+    sortedSeries, sortedKeys = sortedKeys[-1], sortedKeys[:-1]
+    sortedKeys = sortedKeys[:-1]
+    
+    diffs = list(map(np.diff, sortedKeys))
 
     # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
     return sortedSeries, diffs
