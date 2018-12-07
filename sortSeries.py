@@ -59,7 +59,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
         elif method == MethodType.TriggerTime:
             keys.append([d.TriggerTime for d in series])
         elif method == MethodType.AcquisitionDateTime:
-            keys.append([d.AcquisitionDateTime for d in series])
+            keys.append([d.AcquisitionDateTime.timestamp() * 1000.0 for d in series])
         elif method == MethodType.ImageNumber:
             keys.append([d.InstanceNumber for d in series])
         elif method == MethodType.StackID:
@@ -75,7 +75,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
             sliceCosines, slicePositions = slicePositionsFromPatientInfo(series)
             keys.append(slicePositions)
         elif method == MethodType.MFAcquisitionDateTime:
-            keys.append([d.FrameContentSequence[0].MFAcquisitionDateTime for d in series])
+            keys.append([d.FrameContentSequence[0].FrameAcquisitionDateTime.timestamp() * 1000.0 for d in series])
         elif method == MethodType.CardiacTriggerTime:
             keys.append([d.CardiacSynchronizationSequence[0].NominalCardiacTriggerDelayTime for d in series])
         elif method == MethodType.CardiacPercentage:
