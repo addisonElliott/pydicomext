@@ -33,28 +33,6 @@ class MethodType(Enum):
     CardiacTriggerTime = auto()
     CardiacPercentage = auto()
 
-    allStandard = [SliceLocation, PatientLocation, TriggerTime, AcquisitionDateTime, ImageNumber]
-    allMultiFrame = [StackID, StackPosition, TemporalPositionIndex, FrameAcquisitionNumber, MFPatientLocation,
-                     MFAcquisitionDateTime, CardiacTriggerTime, CardiacPercentage]
-
-    @property
-    def isMultiFrame(self):
-        return self.value >= self.StackID.value
-
-    # Standard frame
-    # ----------------
-    # Slice Location or patient location
-    # Trigger time or acquisition date time
-    # Otherwise, use image number
-    # Otherwise fail
-    #
-    # Multi-frame
-    # ----------------
-    # Stack ID on its own
-    # Stack position or MF patient location or frame acquisiton number
-    # Temporal position index or Cardiac trigger time or cardiac percentage or acquisition date time
-    # Otherwise fail
-
 
 def isMethodValid(series, method):
     """Determines if a method is valid for a particular series
