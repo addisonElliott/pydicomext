@@ -51,9 +51,8 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
         if method == MethodType.SliceLocation:
             keys.append([d.SliceLocation for d in series])
         elif method == MethodType.PatientLocation:
-            # TODO Go through and clean the function up
             # Get slice positions for each object
-            sliceCosines, slicePositions = slicePositionsFromPatientInfo(series)
+            slicePositions = getZPositionsFromPatientInfo(series)
 
             keys.append(slicePositions)
         elif method == MethodType.TriggerTime:
@@ -71,8 +70,9 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
         elif method == MethodType.FrameAcquisitionNumber:
             keys.append([d.FrameContentSequence[0].FrameAcquisitionNumber for d in series])
         elif method == MethodType.MFPatientLocation:
-            # TODO Do me
-            sliceCosines, slicePositions = slicePositionsFromPatientInfo(series)
+            # Get slice positions for each object
+            slicePositions = getZPositionsFromPatientInfo(series)
+
             keys.append(slicePositions)
         elif method == MethodType.MFAcquisitionDateTime:
             keys.append([d.FrameContentSequence[0].FrameAcquisitionDateTime.timestamp() * 1000.0 for d in series])
@@ -109,7 +109,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
 
     # TODO Include shape/spacing for images themselves? Pixel spacing, etc?
     # Don't think I like this idea, rather I would like a method in the series to return the pixel/image spacing and then add it on
-    
+
     # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
     # return sortedSeries, diffs
 

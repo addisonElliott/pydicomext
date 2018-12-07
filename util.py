@@ -207,27 +207,47 @@ def getBestMethod(series):
     return method
 
 
-def slicePositionsFromPatientInfo(series):
+def getZPositionsFromPatientInfo(series):
     """Calculates slice location from the Image Orientation/Position fields
 
-    Function used for MethodType.PatientLocation and MethodType.MFPatientLocation methods. It calculates the slice
-    location from the Image Orientation (Patient) and Image Position (Patient) fields in the DICOM header. For
-    Multi-Frame images, the same fields are used but they are stored elsewhere in the frame functional group.
+    This function is used for the :obj:`MethodType.PatientLocation` and :obj:`MethodType.MFPatientLocation` methods. It
+    calculates the slice location for the Image Orientation (Patient) and Image Position (Patient) fields in the DICOM
+    header. For multi-frame images, the same fields are used but they are stored elsewhere in the frame functional
+    group.
 
     Parameters
     ----------
     series : Series
 
+    Raises
+    ------
+    TypeError
+        If the series is empty containing no datasets
+
     Returns
     -------
-    [type]
-        [description]
+    list(float)
+        Return value is a list of length N where N is the number of datasets present in the series with each value
+        being the Z position
     """
+    if len(series) == 0:
+        raise TypeError('Series must contain at least one dataset')
 
+    # We assume that the image orientations are the same throughout the entire series
+    # This **should** be checked before calling this function (such as in isMethodValid)
     if series.isMultiFrame:
-        pass
+        imageOrientation = series[0].PlaneOrientationSequence[0].ImageOrientationPatient
+        imagePositions = [d.PlanePositionSequence[0].ImagePositionPatient for d in series]
     else:
-        pass
+        imageOrientation = series[0].ImageOrientationPatient
+        imagePositions = [d.ImagePositionPatient for d in series]
+
+    # Row cosines is first 3 elements, column cosines is last 3 elements of array
+    rowCosines = np.array(imageOrientation[:3])
+    colCosines = np.array(imageOrientation[3:])
+
+    # Get cross product of row and column cosines (gets normal to row/column cosines)
+    zCosines = np.cross(rowCosines, colCosines)
 
     # Okay, so here is a puzzling question that I do not know how I want to solve. What if there are multiple image orientations. In this case, I assume that's not going to happen and just use the first one. But do I do the same thing for the multi-frame DICOM as well. Is that a safe bet?
     #
@@ -252,17 +272,8 @@ def slicePositionsFromPatientInfo(series):
     #   Does nothing for standard DICOM I don't think. But for multiframe, it'll create/update 3D volume for parent and update any parents that have been flattened and such. Sort of a way to merge two multiframe datasets
     # Some sort of function to take a 3D volume and update the data on it.
 
-    imageOrientation = series[0].ImageOrientationPatient
-
-    # Row cosines is first 3 elements, column cosines is last 3 elements of array
-    rowCosines = np.array(imageOrientation[:3])
-    colCosines = np.array(imageOrientation[3:])
-
-    # Get cross product of row and column cosines
-    sliceCosines = np.cross(rowCosines, colCosines)
-
     # Slice location is dot product of slice cosines and the image patient position
-    return sliceCosines, [np.dot(sliceCosines, d.ImagePositionPatient) for d in series]
+    return [np.dot(zCosines, position) for position in imagePositions]
 
 
 def datasetDeleteOrRemove(dataset, key, value):
