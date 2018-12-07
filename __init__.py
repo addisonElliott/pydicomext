@@ -8,7 +8,7 @@ from .combineSlices import combineSlices
 from .sortSeries import sortSeries
 from .merge import mergeSeries, mergeDatasets
 
-from .util import VolumeType, MethodType, isMethodValid
+from .util import VolumeType, MethodType, isMethodValid, getBestMethods
 
-__all__ = ['DicomDir', 'Patient', 'Study', 'Series', 'VolumeType', 'MethodType', 'loadDirectory', 'combineSlices', 
-           'sortSeries', 'mergeSeries', 'mergeDatasets', 'isMethodValid']
+__all__ = ['DicomDir', 'Patient', 'Study', 'Series', 'VolumeType', 'MethodType', 'loadDirectory', 'combineSlices',
+           'sortSeries', 'mergeSeries', 'mergeDatasets', 'isMethodValid', 'getBestMethods']

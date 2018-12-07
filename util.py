@@ -168,90 +168,69 @@ def getBestMethods(series):
 
     methods = []
 
-    if series.isMultiFrame():
-        # Stack ID
-        if True:
+    if series.isMultiFrame:
+        # Check for stack ID
+        if isMethodValid(series, MethodType.StackID) and \
+                any([series[0].FrameContentSequence[0].StackID != d.FrameContentSequence[0].StackID for d in series]):
             methods.append(MethodType.StackID)
 
-        # Stack position, patient location or frame acquisition number
-        if True:
+        # Check for stack position, patient location or frame acquisition number
+        if isMethodValid(series, MethodType.MFPatientLocation) and \
+                any([series[0].PlanePositionSequence[0].ImagePositionPatient !=
+                     d.PlanePositionSequence[0].ImagePositionPatient for d in series]):
             methods.append(MethodType.MFPatientLocation)
-        elif True:
+        elif isMethodValid(series, MethodType.StackPosition) and \
+                any([series[0].FrameContentSequence[0].InStackPositionNumber !=
+                     d.FrameContentSequence[0].InStackPositionNumber for d in series]):
             methods.append(MethodType.StackPosition)
-        elif True:
+        elif isMethodValid(series, MethodType.FrameAcquisitionNumber) and \
+                any([series[0].FrameContentSequence[0].FrameAcquisitionNumber !=
+                     d.FrameContentSequence[0].FrameAcquisitionNumber for d in series]):
             methods.append(MethodType.FrameAcquisitionNumber)
 
-        # Cardiac trigger time, acquisition date time, temporal position index, cardiac percentage
-        if True:
+        # Check for cardiac trigger time, acquisition date time, temporal position index or cardiac percentage
+        if isMethodValid(series, MethodType.CardiacTriggerTime) and \
+                any([series[0].CardiacSynchronizationSequence[0].NominalCardiacTriggerDelayTime !=
+                     d.CardiacSynchronizationSequence[0].NominalCardiacTriggerDelayTime for d in series]):
             methods.append(MethodType.CardiacTriggerTime)
-        elif True:
+        elif isMethodValid(series, MethodType.MFAcquisitionDateTime) and \
+                any([series[0].FrameContentSequence[0].FrameAcquisitionDateTime !=
+                     d.FrameContentSequence[0].FrameAcquisitionDateTime for d in series]):
             methods.append(MethodType.MFAcquisitionDateTime)
-        elif True:
+        elif isMethodValid(series, MethodType.TemporalPositionIndex) and \
+                any([series[0].FrameContentSequence[0].TemporalPositionIndex !=
+                     d.FrameContentSequence[0].TemporalPositionIndex for d in series]):
             methods.append(MethodType.TemporalPositionIndex)
-        elif True:
+        elif isMethodValid(series, MethodType.CardiacPercentage) and \
+                any([series[0].CardiacSynchronizationSequence[0].NominalPercentageOfCardiacPhase !=
+                     d.CardiacSynchronizationSequence[0].NominalPercentageOfCardiacPhase for d in series]):
             methods.append(MethodType.CardiacPercentage)
     else:
-        # Patient location or slice location
-        if True:
+        # Check for either patient location or slice location
+        if isMethodValid(series, MethodType.PatientLocation) and \
+                any([series[0].ImagePositionPatient != d.ImagePositionPatient for d in series]):
             methods.append(MethodType.PatientLocation)
-        elif True:
+        elif isMethodValid(series, MethodType.SliceLocation) and \
+                any([series[0].SliceLocation != d.SliceLocation for d in series]):
             methods.append(MethodType.SliceLocation)
 
-        # Trigger time, acquisition date time
-        if True:
+        # Check for trigger time or acquisition date time
+        if isMethodValid(series, MethodType.TriggerTime) \
+                and any([series[0].TriggerTime != d.TriggerTime for d in series]):
             methods.append(MethodType.TriggerTime)
-        elif True:
+        elif isMethodValid(series, MethodType.AcquisitionDateTime) \
+                and any([series[0].AcquisitionDateTime != d.AcquisitionDateTime for d in series]):
             methods.append(MethodType.AcquisitionDateTime)
 
-        if len(methods) == 0 and True:
+        # If nothing has worked until now, try image number
+        if len(methods) == 0 and isMethodValid(series, MethodType.ImageNumber) \
+                and any([series[0].InstanceNumber != d.InstanceNumber for d in series]):
             methods.append(MethodType.ImageNumber)
 
     if len(methods) == 0:
-        pass
-
-
-
-    # For this, since we may be dealing with multidimensional data, we want to see how many groups we would have
-    # Also, not sure I want to check if the method is valid since it consists of calling all twice, can do all in one run I think
-
-    methods = []
-    checkMethods = MethodType.allMultiFrame if series.isMultiFrame else MethodType.allStandard
-
-    # If slice location is not present on either one, then stop
-    for d in series:
-        for method in checkMethods:
-            if method == MethodType.TriggerTime:
-                if 'TriggerTime' not in d:
-                    checkMethods.remove(method)
-                elif series[0].TriggerTime != d.TriggerTime:
-                    methods.append(method)
-                    # TODO Also remove other temporal ones here!
-                    checkMethods.remove(method)
-
-    # return methods
-
-    if isMethodValid(series, MethodType.SliceLocation) \
-            and any([series[0].SliceLocation != d.SliceLocation for d in series]):
-        method = MethodType.SliceLocation
-    elif isMethodValid(series, MethodType.PatientLocation) \
-            and any([series[0].ImageOrientationPatient != d.ImageOrientationPatient or
-                     series[0].ImagePositionPatient != d.ImagePositionPatient for d in series]):
-        method = MethodType.PatientLocation
-    elif isMethodValid(series, MethodType.TriggerTime) \
-            and any([series[0].TriggerTime != d.TriggerTime for d in series]):
-        method = MethodType.TriggerTime
-    elif isMethodValid(series, MethodType.AcquisitionDateTime) \
-            and any([series[0].AcquisitionDateTime != d.AcquisitionDateTime for d in series]):
-        method = MethodType.AcquisitionDateTime
-    elif isMethodValid(series, MethodType.ImageNumber) \
-            and any([series[0].ImageNumber != d.ImageNumber for d in series]):
-        method = MethodType.ImageNumber
-    else:
         raise TypeError('Unable to find best method')
 
-    # TODO Add new method types here!
-
-    return method
+    return methods
 
 
 def getZPositionsFromPatientInfo(series):

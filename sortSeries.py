@@ -33,7 +33,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
         raise TypeError('Series must contain at least one dataset')
 
     if methods == MethodType.Unknown:
-        methods = getBestMethod(series)
+        methods = getBestMethods(series)
 
     # Make a list out of the method if it is not one
     if not isinstance(methods, list):
