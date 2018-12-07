@@ -5,7 +5,7 @@ from .util import *
 pydicom.config.datetime_conversion = True
 
 
-def sortSlices(series, methods=MethodType.Unknown, reverse=False, warn=True):
+def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True):
     """Sorts datasets in series based on its metadata
 
     Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
@@ -14,13 +14,19 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False, warn=True):
     Parameters
     ----------
     series : Series
-        [description]
     method : MethodType or list(MethodType), optional
-        [description] (the default is MethodType.Unknown, which [default_description])
+        A single method or a list of methods to use when sorting the series. If this is :obj:`MethodType.Unknown`, then
+        the best methods will be retrieved based on the datasets metadata. If a list of methods are given, then the
+        series is sorted in order from left to right of the methods. This in effect will create multidimensional series
+        (the default is MethodType.Unknown which will retrieve the best methods based on the series)
     reverse : bool, optional
         Whether or not to reverse the sort, where the default sorting order is ascending (the default is False)
+    squeeze : bool, optional
+        Whether to remove unnecessary dimensions of size 1 (default is False, meaning dimensions are untouched). The
+        resulting methods and spacing will be updated accordingly to remove unnecessary dimensions of size 1.
     warn : bool, optional
-        Whether to warn or raise an exception for non-uniform grid spacing
+        Whether to warn or raise an exception for non-uniform grid spacing (default is True which will display warnings
+        rather than exceptions)
     """
 
     if len(series) == 0:
@@ -80,7 +86,7 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False, warn=True):
 
     # Lots is happening here, but let me break it up one by one
     # Zip up the keyAttrs so that each iterator in the list will be: (key1, key2, key3, ..., series)
-    # Then sort that list which will sort based on key1, then key2, etc
+    # Then sort that list which will sort based on key1, then key2, etc (but do NOT use dataset as sorting key!)
     # Next we unzip the list (by zipping it again) so that each list is the entire list of keys for that method
     sortedKeys = list(zip(*sorted(zip(*keys), key=lambda x: x[:-1], reverse=reverse)))
 
@@ -90,9 +96,23 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False, warn=True):
     # From the sorted keys, get the shape of the ND data and spacing
     shape, spacing = getSpacingDims(sortedKeys, warn=warn)
 
-    # TODO Squeeze the shape/spacing?
+    # Squeeze dimensional data by removing any instances with a 1 for the shape
+    if squeeze:
+        # Zip up the shape, spacing, methods. Filter any components out that have a dimension of 1
+        squeezedData = list(filter(lambda x: x[0] != 1, zip(shape, spacing, methods)))
+
+        # Unzip the data (by zipping again)
+        shape, spacing, methods = list(zip(*squeezedData))
+    else:
+        # Convert shape and spacing to a tuple, better for passing around, should not be mutable
+        shape, spacing = tuple(shape), tuple(spacing)
+
     # TODO Include shape/spacing for images themselves? Pixel spacing, etc?
+    # Don't think I like this idea, rather I would like a method in the series to return the pixel/image spacing and then add it on
+    
     # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
     # return sortedSeries, diffs
 
-    return sortedSeries, shape, spacing
+    # Return methods as well because the user may have set the method type to unknown to retrieve best method type, so
+    # they would want to know the results
+    return sortedSeries, shape, spacing, methods

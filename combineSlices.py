@@ -1,4 +1,4 @@
-from .sortSlices import *
+from .sortSeries import *
 
 pydicom.config.datetime_conversion = True
 
@@ -15,7 +15,7 @@ def combineSlices(datasets, method=MethodType.Unknown, reverse=False):
     elif not isMethodAvailable(datasets, method):
         raise TypeError('Invalid method specified')
 
-    sortedDataset, zSpacing, sliceCosines = sortSlices(datasets, method, reverse)
+    sortedDataset, zSpacing, sliceCosines = sortSeries(datasets, method, reverse)
 
     # Get 3D volume from list of datasets
     volume = np.dstack((x.pixel_array for x in sortedDataset))

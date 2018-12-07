@@ -327,7 +327,7 @@ def getSpacingDims(coordinates, warn=True):
     total = len(coordinates[0])
 
     # Spacing and dimensions that will store results
-    dims = []
+    shape = []
     spacing = []
 
     # Loop through each list in coordinates (in example, there is 3 lists)
@@ -351,10 +351,16 @@ def getSpacingDims(coordinates, warn=True):
             if not np.all(np.isclose(nzIndicesDiff, nzIndicesDiff[0], atol=0.0, rtol=0.01)):
                 if warn:
                     logger.warning('Dims are not uniform, greater than 1% tolerance')
+                    logger.debug('Spacing Differences: %s' % nzIndicesDiff)
                 else:
+                    logger.debug('Spacing Differences: %s' % nzIndicesDiff)
                     raise Exception('Dims are not uniform, greater than 1% tolerance')
-
-                logger.debug('Spacing Differences: %s' % nzIndicesDiff)
+        elif len(nzIndices) == 0:
+            # No nonzero indices means no changes in coordinate occurred, hence a size of 1
+            # Guess that means the spacing is 0? Really it's undefined
+            shape.append(1)
+            spacing.append(0)
+            continue
 
         # Since we know all the indices spacing is the same, just grab the first one
         # This is 5 in the case of the second dimension
@@ -363,7 +369,7 @@ def getSpacingDims(coordinates, warn=True):
         # Dimension will be total / numNZIndices
         # This is 15 / 5 = 3 for the second dimension
         # As noted below, the total will be overridden with the numNZIndices of the previous run
-        dims.append(total // numNZIndices)
+        shape.append(total // numNZIndices)
 
         # Retrieve the amount of change between each transition
         # Will be the following for second dimension:
@@ -381,19 +387,30 @@ def getSpacingDims(coordinates, warn=True):
         expectedStepAmount = spacing[-1] * np.ones_like(stepAmount)
 
         # Then set every Nth element to be -(dim size - 1) * spacing where N is the size of that dimension
-        print('x', dims[-1], type(dims[-1]))
-        expectedStepAmount[dims[-1] - 1::dims[-1]] = -(dims[-1] - 1) * spacing[-1]
+        expectedStepAmount[shape[-1] - 1::shape[-1]] = -(shape[-1] - 1) * spacing[-1]
 
         # Verify step amount and expected step amount are close, if not there was a problem
         if not np.all(np.isclose(stepAmount, expectedStepAmount)):
             if warn:
                 logger.warning('Spacing is not uniform, greater than 10% tolerance')
+                logger.debug('Spacing Differences: %s' % nzIndicesDiff)
             else:
+                logger.debug('Spacing Differences: %s' % nzIndicesDiff)
                 raise Exception('Spacing is not uniform, greater than 10% tolerance')
-
-            logger.debug('Spacing Differences: %s' % nzIndicesDiff)
 
         # Finish by setting total number of elements to the number of nonzero indices
         total = numNZIndices
 
-    return dims, spacing
+    # If the last number of nonzero indices is not one, meaning that the coordinates change each time, then this
+    # indicates that there are duplicate slices
+    if numNZIndices != 1:
+        if warn:
+            logger.warning('Datasets are not unique in dimensional space. Duplicate keys present. Try again with '
+                           'additional sorting methods')
+            logger.debug('numNZIndices: %i, nzIndices: %s, differences: %s' % (numNZIndices, nzIndices, diffs))
+        else:
+            logger.debug('numNZIndices: %i, nzIndices: %s, differences: %s' % (numNZIndices, nzIndices, diffs))
+            raise Exception('Datasets are not unique in dimensional space. Duplicate keys present. Try again with '
+                            'additional sorting methods')
+
+    return shape, spacing
