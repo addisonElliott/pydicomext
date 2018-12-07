@@ -5,7 +5,8 @@ from .util import *
 pydicom.config.datetime_conversion = True
 
 
-def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True):
+def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
+               spacingTolerance=0.01):
     """Sorts datasets in series based on its metadata
 
     Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
@@ -94,7 +95,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     sortedSeries, sortedKeys = sortedKeys[-1], sortedKeys[:-1]
 
     # From the sorted keys, get the shape of the ND data and spacing
-    shape, spacing = getSpacingDims(sortedKeys, warn=warn)
+    shape, spacing = getSpacingDims(sortedKeys, warn, shapeTolerance, spacingTolerance)
 
     # Squeeze dimensional data by removing any instances with a 1 for the shape
     if squeeze:

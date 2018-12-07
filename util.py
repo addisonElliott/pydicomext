@@ -318,7 +318,7 @@ def datasetDeleteOrRemove(dataset, key, value):
         del dataset[key]
 
 
-def getSpacingDims(coordinates, warn=True):
+def getSpacingDims(coordinates, warn=True, shapeTolerance=0.01, spacingTolerance=0.10):
     """Takes 2D list of coordinates and returns dimensional size and spacing
 
     :obj:`coordinates` is a 2D list where the internal lists represent the coordinate for a given dimension. An example
@@ -400,7 +400,7 @@ def getSpacingDims(coordinates, warn=True):
         # nzIndicesDiff will be [5, 5, 5, 5] which are all the same as expected!
         if len(nzIndices) > 1:
             nzIndicesDiff = np.diff(nzIndices)
-            if not np.allclose(nzIndicesDiff, nzIndicesDiff[0], atol=0.0, rtol=0.01):
+            if not np.allclose(nzIndicesDiff, nzIndicesDiff[0], atol=0.0, rtol=shapeTolerance):
                 if warn:
                     logger.warning('Dims are not uniform, greater than 1% tolerance')
                     logger.debug('Dimension #%i key values: %s' % (coordinates.index(x) + 1, x))
@@ -448,7 +448,7 @@ def getSpacingDims(coordinates, warn=True):
         expectedStepAmount[shape[-1] - 1::shape[-1]] = -(shape[-1] - 1) * spacing[-1]
 
         # Verify step amount and expected step amount are close, if not there was a problem
-        if not np.allclose(stepAmount, expectedStepAmount, atol=0.0, rtol=0.1):
+        if not np.allclose(stepAmount, expectedStepAmount, atol=0.0, rtol=spacingTolerance):
             if warn:
                 logger.warning('Spacing is not uniform, greater than 10% tolerance')
                 logger.debug('Dimension #%i key values: %s' % (coordinates.index(x) + 1, x))
