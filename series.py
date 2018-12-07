@@ -2,7 +2,7 @@ from .util import *
 
 
 class Series(list):
-    def __init__(self, dataset=None):
+    def __init__(self, datasets=None, dataset=None):
         if dataset:
             self.ID = dataset.get('SeriesInstanceUID')
             self.date = dataset.get('SeriesDate')
@@ -19,7 +19,16 @@ class Series(list):
         # Stores whether we have multi frame data and whether we have only multi frame data
         self._isMultiFrame = False
 
+        # Stores sort information if this series is ever sorted
+        self._shape = None
+        self._spacing = None
+        self._methods = None
+
         list.__init__(self)
+
+        # Add items to the list
+        if datasets:
+            self.extend(datasets)
 
     def loadMultiFrame(self):
         # Reset to original value
@@ -52,6 +61,18 @@ class Series(list):
     @property
     def isMultiFrame(self):
         return self._isMultiFrame
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @property
+    def spacing(self):
+        return self._spacing
+
+    @property
+    def sortMethods(self):
+        return self._methods
 
     def clearSeries(self):
         self.ID = None

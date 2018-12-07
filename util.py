@@ -1,6 +1,5 @@
 from enum import Enum, auto
 import logging
-
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -32,6 +31,10 @@ class MethodType(Enum):
     MFAcquisitionDateTime = auto()
     CardiacTriggerTime = auto()
     CardiacPercentage = auto()
+
+    @property
+    def isMultiFrame(self):
+        return self.value >= self.StackID.value
 
 
 def isMethodValid(series, method):

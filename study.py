@@ -23,7 +23,7 @@ class Study(dict):
             self[var.ID] = var
             return var
         elif isinstance(var, Dataset):
-            series = Series(var)
+            series = Series(dataset=var)
             self[series.ID] = series
             return series
         else:

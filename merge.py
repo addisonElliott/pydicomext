@@ -99,8 +99,7 @@ def mergeDatasets(datasets):
     if len(datasets) == 0:
         raise TypeError('Must have at least one dataset in the list')
 
-    mergedSeries = Series()
-    mergedSeries.extend(datasets)
+    mergedSeries = Series(datasets)
 
     # Will reevaluate if the series is multi frame since we added datasets to a blank series
     mergedSeries.checkIsMultiFrame()

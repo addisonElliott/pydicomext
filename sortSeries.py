@@ -1,6 +1,7 @@
 import pydicom
 
 from .util import *
+from .series import Series
 
 pydicom.config.datetime_conversion = True
 
@@ -92,7 +93,8 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     sortedKeys = list(zip(*sorted(zip(*keys), key=lambda x: x[:-1], reverse=reverse)))
 
     # Sorted series is the last element and the remaining items are the keys used for sorting
-    sortedSeries, sortedKeys = sortedKeys[-1], sortedKeys[:-1]
+    # Wrap the sorted series back into Series class because it is a tuple
+    sortedSeries, sortedKeys = Series(sortedKeys[-1]), sortedKeys[:-1]
 
     # From the sorted keys, get the shape of the ND data and spacing
     shape, spacing = getSpacingDims(sortedKeys, warn, shapeTolerance, spacingTolerance)
@@ -108,10 +110,15 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
         # Convert shape and spacing to a tuple, better for passing around, should not be mutable
         shape, spacing = tuple(shape), tuple(spacing)
 
+    # Update the metadata in the series itself
+    sortedSeries._shape = shape
+    sortedSeries._spacing = spacing
+    sortedSeries._methods = methods
+
     # TODO Include shape/spacing for images themselves? Pixel spacing, etc?
     # Don't think I like this idea, rather I would like a method in the series to return the pixel/image spacing and
     # then add it on
 
     # Return methods as well because the user may have set the method type to unknown to retrieve best method type, so
     # they would want to know the results
-    return sortedSeries, shape, spacing, methods
+    return sortedSeries
