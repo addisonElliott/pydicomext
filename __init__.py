@@ -6,7 +6,8 @@ from .series import Series
 from .loadDirectory import loadDirectory
 from .combineSlices import combineSlices
 from .sortSlices import sortSlices
+from .merge import mergeSeries, mergeDatasets
 
 from .util import VolumeType, MethodType, isMethodValid
 
-__all__ = ['DicomDir', 'Patient', 'Study', 'Series', 'VolumeType', 'MethodType', 'loadDirectory', 'combineSlices', 'sortSlices', 'isMethodValid']
+__all__ = ['DicomDir', 'Patient', 'Study', 'Series', 'VolumeType', 'MethodType', 'loadDirectory', 'combineSlices', 'sortSlices', 'mergeSeries', 'mergeDatasets', 'isMethodValid']

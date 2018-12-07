@@ -56,12 +56,25 @@ def mergeSeries(seriess, indices=None):
             mergedSeries._isMultiFrame |= series._isMultiFrame
             mergedSeries.extend(series)
     else:
+        # Loop through each series and add the specified datasets to the merged series
         for series, indices_ in zip(seriess, indices):
-            if len(indices_) > 0:
-                mergedSeries._isMultiFrame |= series._isMultiFrame
-                mergedSeries.extend(operator.itemgetter(*indices_)(series))
+            # If the indices is iterable, then we add using itemgetter to retrieve all of the indices
+            # Otherwise, we just assume its an integer so we retrieve that slice normally and append it
+            if hasattr(indices_, '__iter__') and len(indices_) > 0:
+                # If the length is exactly one then we need to append and not extend!
+                if len(indices_) == 1:
+                    mergedSeries.append(operator.itemgetter(*indices_)(series))
+                else:
+                    mergedSeries.extend(operator.itemgetter(*indices_)(series))
+            else:
+                mergedSeries.append(series[indices_])
 
-    return mergeSeries
+        # Have to check multi frame at the end, we acnnot use series._isMultiFrame and boolean OR like above because we
+        # don't know which datasets we are extracting. I.e. we could extract all of the non-multiframe datasets from a
+        # multiframe series and cause this to mess up.
+        mergedSeries.checkIsMultiFrame()
+
+    return mergedSeries
 
 
 def mergeDatasets(datasets):
@@ -87,9 +100,9 @@ def mergeDatasets(datasets):
         raise TypeError('Must have at least one dataset in the list')
 
     mergedSeries = Series()
-    mergeSeries.extend(datasets)
+    mergedSeries.extend(datasets)
 
     # Will reevaluate if the series is multi frame since we added datasets to a blank series
     mergedSeries.checkIsMultiFrame()
 
-    return mergeSeries
+    return mergedSeries
