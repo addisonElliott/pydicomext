@@ -89,7 +89,11 @@ def isMethodValid(series, method):
     if method == MethodType.SliceLocation:
         return all(['SliceLocation' in d for d in series])
     elif method == MethodType.PatientLocation:
-        return all(['ImageOrientationPatient' in d and 'ImagePositionPatient' in d for d in series])
+        # Retrieve image orientation from first dataset (will return None if not present)
+        imageOrientation = series[0].get('ImageOrientationPatient')
+
+        return all(['ImageOrientationPatient' in d and 'ImagePositionPatient' in d and
+                    d.ImageOrientationPatient == imageOrientation for d in series])
     elif method == MethodType.TriggerTime:
         return all(['TriggerTime' in d for d in series])
     elif method == MethodType.AcquisitionDateTime:
@@ -106,7 +110,11 @@ def isMethodValid(series, method):
     elif method == MethodType.FrameAcquisitionNumber:
         return all(['FrameAcquisitionNumber' in d.FrameContentSequence[0] for d in series])
     elif method == MethodType.MFPatientLocation:
+        # Retrieve image orientation from first dataset (will return None if not present)
+        imageOrientation = series[0].PlaneOrientationSequence[0].get('ImageOrientationPatient')
+
         return all(['ImageOrientationPatient' in d.PlaneOrientationSequence[0] and
+                    d.PlaneOrientationSequence[0].ImageOrientationPatient == imageOrientation and
                     'ImagePositionPatient' in d.PlanePositionSequence[0] for d in series])
     elif method == MethodType.MFAcquisitionDateTime:
         return all(['FrameAcquisitionDateTime' in d.FrameContentSequence[0] for d in series])
@@ -236,6 +244,13 @@ def slicePositionsFromPatientInfo(series):
     # on that note, it's just the same as checking pixel spacing and such. Do we just assume that is the same all the way throughout for all images? Do we check it somewhere?
     #
     # So, I'm thinking maybe a function like checkPatientLocation() that will verify they are all the same or throws an Exception/warning. That will be called in sortSlices, well maybe not. I hate to call it multiple times, you know? Not sure..
+
+    # Functions I would like to create:
+    # splitSeries (opposite to merge)
+    # preflatten? Basically find changes in key info between each dataset and see which one to accept
+    # flatten - With changes done by preflatten, it will basically take and merge two datasets into one
+    #   Does nothing for standard DICOM I don't think. But for multiframe, it'll create/update 3D volume for parent and update any parents that have been flattened and such. Sort of a way to merge two multiframe datasets
+    # Some sort of function to take a 3D volume and update the data on it.
 
     imageOrientation = series[0].ImageOrientationPatient
 

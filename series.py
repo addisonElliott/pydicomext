@@ -85,6 +85,15 @@ class Series(list):
             datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
             datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
 
+    def checkPatientOrientation(self):
+        if self.isMultiFrame():
+            imageOrientation = self[0].PlaneOrientationSequence[0].get('ImageOrientationPatient')
+            any([d.PlaneOrientationSequence[0].get('ImageOrientationPatient') != imageOrientation for d in self])
+            pass
+        else:
+            pass
+        pass
+
     def __str__(self):
         return """Series %s
     Date: %s
