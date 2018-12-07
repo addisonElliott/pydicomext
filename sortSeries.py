@@ -108,10 +108,8 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
         shape, spacing = tuple(shape), tuple(spacing)
 
     # TODO Include shape/spacing for images themselves? Pixel spacing, etc?
-    # Don't think I like this idea, rather I would like a method in the series to return the pixel/image spacing and then add it on
-
-    # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
-    # return sortedSeries, diffs
+    # Don't think I like this idea, rather I would like a method in the series to return the pixel/image spacing and
+    # then add it on
 
     # Return methods as well because the user may have set the method type to unknown to retrieve best method type, so
     # they would want to know the results

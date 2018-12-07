@@ -41,11 +41,15 @@ class MethodType(Enum):
     def isMultiFrame(self):
         return self.value >= self.StackID.value
 
+    # Standard frame
+    # ----------------
     # Slice Location or patient location
     # Trigger time or acquisition date time
     # Otherwise, use image number
     # Otherwise fail
     #
+    # Multi-frame
+    # ----------------
     # Stack ID on its own
     # Stack position or MF patient location or frame acquisiton number
     # Temporal position index or Cardiac trigger time or cardiac percentage or acquisition date time
@@ -141,7 +145,7 @@ def getTypeFromMethod(method):
         return VolumeType.Unknown
 
 
-def getBestMethod(series):
+def getBestMethods(series):
     """Select best method to use for sorting/combining datasets in a series
 
     Parameters
@@ -162,7 +166,50 @@ def getBestMethod(series):
     if len(series) == 0:
         raise TypeError('Series must contain at least one dataset')
 
-    method = MethodType.Unknown
+    methods = []
+
+    if series.isMultiFrame():
+        # Stack ID
+        if True:
+            methods.append(MethodType.StackID)
+
+        # Stack position, patient location or frame acquisition number
+        if True:
+            methods.append(MethodType.MFPatientLocation)
+        elif True:
+            methods.append(MethodType.StackPosition)
+        elif True:
+            methods.append(MethodType.FrameAcquisitionNumber)
+
+        # Cardiac trigger time, acquisition date time, temporal position index, cardiac percentage
+        if True:
+            methods.append(MethodType.CardiacTriggerTime)
+        elif True:
+            methods.append(MethodType.MFAcquisitionDateTime)
+        elif True:
+            methods.append(MethodType.TemporalPositionIndex)
+        elif True:
+            methods.append(MethodType.CardiacPercentage)
+    else:
+        # Patient location or slice location
+        if True:
+            methods.append(MethodType.PatientLocation)
+        elif True:
+            methods.append(MethodType.SliceLocation)
+
+        # Trigger time, acquisition date time
+        if True:
+            methods.append(MethodType.TriggerTime)
+        elif True:
+            methods.append(MethodType.AcquisitionDateTime)
+
+        if len(methods) == 0 and True:
+            methods.append(MethodType.ImageNumber)
+
+    if len(methods) == 0:
+        pass
+
+
 
     # For this, since we may be dealing with multidimensional data, we want to see how many groups we would have
     # Also, not sure I want to check if the method is valid since it consists of calling all twice, can do all in one run I think
