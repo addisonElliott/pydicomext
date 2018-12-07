@@ -16,24 +16,23 @@ class Series(list):
             self.description = None
             self.number = None
 
-        # TODO Investigate whether saving parent pointer is wise, may not be most efficient
-        # I want it store as a pointer
-        self._multiFrameData = []
-        self._onlyMultiFrames = False
+        # Stores whether we have multi frame data and whether we have only multi frame data
+        self._isMultiFrame = False
 
         list.__init__(self)
 
     def loadMultiFrame(self):
         # Reset to original values
-        self._multiFrameData.clear()
-        self._onlyMultiFrames = False
+        self._isMultiFrame = False
 
         for dataset in self:
             # Use NumberOfFrames as indicator of whether the dataset is multi-frame or not
             # If this is present, we **assume** that Per-frame Functional Groups Sequence is present
             if 'NumberOfFrames' not in dataset:
-                self._onlyMultiFrames = True
                 continue
+
+            # The first instance of a multiframe series sets this true
+            self._isMultiFrame = True
 
             # Loop through each frame dataset and save to list
             for x, frameDataset in enumerate(dataset.PerFrameFunctionalGroupsSequence):
@@ -44,12 +43,11 @@ class Series(list):
                 self.append(frameDataset)
 
             # Save the parent dataset and remove from list
-            self._multiFrameData.append(dataset)
             self.remove(dataset)
 
     @property
     def isMultiFrame(self):
-        return len(self._multiFrameData) > 0
+        return self._isMultiFrame
 
     def clearSeries(self):
         self.ID = None
@@ -63,21 +61,19 @@ class Series(list):
         if ID is None:
             return
 
-        # Loop through data (if there are frames besides only multi frame data)
-        if not self._onlyMultiFrames:
-            for dataset in self[startNewIndex:]:
-                # Skip datasets from multiframe, will check parent dataset later
-                if hasattr(dataset, 'parent'):
+        multiFrameParents = []
+
+        for dataset in self[startNewIndex:]:
+            # Check for multiframe datasets, will update the parent dataset
+            if hasattr(dataset, 'parent'):
+                # If we have already handled this multiframe parent, then skip
+                if dataset.parent in multiFrameParents:
                     continue
 
-                # Update fields in dataset, remove optional ones if value is None
-                dataset.SeriesInstanceUID = ID
-                datasetDeleteOrRemove(dataset, 'SeriesDate', date)
-                datasetDeleteOrRemove(dataset, 'SeriesTime', time)
-                datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
-                datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
+                # Otherwise, set dataset to be the parent and append to list so we dont do this again
+                dataset = dataset.parent
+                multiFrameParents.append(dataset)
 
-        for dataset in self._multiFrameData:
             # Update fields in dataset, remove optional ones if value is None
             dataset.SeriesInstanceUID = ID
             datasetDeleteOrRemove(dataset, 'SeriesDate', date)
