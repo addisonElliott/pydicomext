@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 pydicom.config.datetime_conversion = True
 
 
-def sortSlices(series, methods=MethodType.Unknown, reverse=False):
+def sortSlices(series, methods=MethodType.Unknown, reverse=False, warn=True):
     """Sorts datasets in series based on its metadata
 
     Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
@@ -24,6 +24,8 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False):
         [description] (the default is MethodType.Unknown, which [default_description])
     reverse : bool, optional
         Whether or not to reverse the sort, where the default sorting order is ascending (the default is False)
+    warn : bool, optional
+        Whether to warn or raise an exception for non-uniform grid spacing
     """
 
     if len(series) == 0:
@@ -90,25 +92,15 @@ def sortSlices(series, methods=MethodType.Unknown, reverse=False):
     # Sorted series is the last element and the remaining items are the keys used for sorting
     sortedSeries, sortedKeys = sortedKeys[-1], sortedKeys[:-1]
 
-    c = len(sortedSeries)
+    # From the sorted keys, get the shape of the ND data and spacing
+    shape, spacing = getSpacingDims(sortedKeys, warn=warn)
 
-    for x in sortedKeys[:-1]:
-        diffs = np.diff(x)
-
-        y = np.argwhere(diffs != 0).T
-        z = y[0]
-        # Should all be the same, if not throw an error!
-        # np.all(np.diff(y))
-
-        dim[0] = c / z
-        c = z
-        pass
-
-    # diffs = list(map(np.diff, sortedKeys))
+    # TODO Squeeze the shape/spacing?
+    # TODO Include shape/spacing for images themselves? Pixel spacing, etc?
 
     # TODO This is going to be different for multiframe DICOM vs regular DICOM, general idea is the same though
     # return sortedSeries, diffs
-    return sortedKeys
+    return sortedSeries, shape, spacing
 
 
 def sortSlices2(datasets, method=MethodType.Unknown, reverse=False):
