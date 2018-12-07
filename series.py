@@ -85,14 +85,43 @@ class Series(list):
             datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
             datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
 
-    def checkImageOrientation(self):
-        if self.isMultiFrame():
-            imageOrientation = self[0].PlaneOrientationSequence[0].get('ImageOrientationPatient')
-            any([d.PlaneOrientationSequence[0].get('ImageOrientationPatient') != imageOrientation for d in self])
-            pass
-        else:
-            pass
-        pass
+    def isMethodValid(method):
+        """Determines if a method is valid for sorting/combining this series
+
+        Checks if a given method is available for sorting or combining this series. This checks the DICOM header of each
+        dataset in the series for the specified tag based on the method given.
+
+        Parameters
+        ----------
+        method : MethodType
+            Method to check
+
+        Raises
+        ------
+        TypeError
+            If invalid method is given or if the series is empty
+
+        Returns
+        -------
+        bool
+            True if the method is a valid method of sorting/combining this series, False otherwise
+        """
+        return isMethodValid(self, method)
+
+    def getBestMethods(self):
+        """Select best method to use for sorting/combining datasets in this series
+
+        Raises
+        ------
+        TypeError
+            If unable to find the best method or if the series is empty
+
+        Returns
+        -------
+        list(MethodType)
+            Return list of best method type to use
+        """
+        return getBestMethods(self)
 
     def __str__(self):
         return """Series %s
