@@ -22,7 +22,7 @@ class Series(list):
         list.__init__(self)
 
     def loadMultiFrame(self):
-        # Reset to original values
+        # Reset to original value
         self._isMultiFrame = False
 
         for dataset in self:
@@ -44,6 +44,10 @@ class Series(list):
 
             # Save the parent dataset and remove from list
             self.remove(dataset)
+
+    def checkIsMultiFrame(self):
+        # Check all datasets for the parent attribute, if any are present, then we have multiframe data
+        self._isMultiFrame = any([hasattr(dataset, 'parent') for dataset in self])
 
     @property
     def isMultiFrame(self):
