@@ -348,11 +348,15 @@ def getSpacingDims(coordinates, warn=True):
         # nzIndicesDiff will be [5, 5, 5, 5] which are all the same as expected!
         if len(nzIndices) > 1:
             nzIndicesDiff = np.diff(nzIndices)
-            if not np.all(np.isclose(nzIndicesDiff, nzIndicesDiff[0], atol=0.0, rtol=0.01)):
+            if not np.allclose(nzIndicesDiff, nzIndicesDiff[0], atol=0.0, rtol=0.01):
                 if warn:
                     logger.warning('Dims are not uniform, greater than 1% tolerance')
+                    logger.debug('Dimension #%i key values: %s' % (coordinates.index(x) + 1, x))
+                    logger.debug('Location of non-zero changes in: %s' % nzIndices)
                     logger.debug('Spacing Differences: %s' % nzIndicesDiff)
                 else:
+                    logger.debug('Dimension #%i key values: %s' % (coordinates.index(x) + 1, x))
+                    logger.debug('Location of non-zero changes in: %s' % nzIndices)
                     logger.debug('Spacing Differences: %s' % nzIndicesDiff)
                     raise Exception('Dims are not uniform, greater than 1% tolerance')
         elif len(nzIndices) == 0:
@@ -364,6 +368,8 @@ def getSpacingDims(coordinates, warn=True):
 
         # Since we know all the indices spacing is the same, just grab the first one
         # This is 5 in the case of the second dimension
+        # TODO May want to consider taking an average of all values in case there are small differences?
+        # Not sure I see a direct need to do this now
         numNZIndices = nzIndices[0] + 1
 
         # Dimension will be total / numNZIndices
@@ -390,12 +396,20 @@ def getSpacingDims(coordinates, warn=True):
         expectedStepAmount[shape[-1] - 1::shape[-1]] = -(shape[-1] - 1) * spacing[-1]
 
         # Verify step amount and expected step amount are close, if not there was a problem
-        if not np.all(np.isclose(stepAmount, expectedStepAmount)):
+        if not np.allclose(stepAmount, expectedStepAmount, atol=0.0, rtol=0.1):
             if warn:
                 logger.warning('Spacing is not uniform, greater than 10% tolerance')
-                logger.debug('Spacing Differences: %s' % nzIndicesDiff)
+                logger.debug('Dimension #%i key values: %s' % (coordinates.index(x) + 1, x))
+                logger.debug('Location of non-zero changes in: %s' % nzIndices)
+                logger.debug('Step amount at each transition: %s' % stepAmount)
+                logger.debug('Expected step amounts at each transition: %s' % expectedStepAmount)
+                logger.debug('Shape is %i, spacing is %f' % (shape[-1], spacing[-1]))
             else:
-                logger.debug('Spacing Differences: %s' % nzIndicesDiff)
+                logger.debug('Dimension #%i key values: %s' % (coordinates.index(x) + 1, x))
+                logger.debug('Location of non-zero changes in: %s' % nzIndices)
+                logger.debug('Step amount at each transition: %s' % stepAmount)
+                logger.debug('Expected step amounts at each transition: %s' % expectedStepAmount)
+                logger.debug('Shape is %i, spacing is %f' % (shape[-1], spacing[-1]))
                 raise Exception('Spacing is not uniform, greater than 10% tolerance')
 
         # Finish by setting total number of elements to the number of nonzero indices
@@ -407,9 +421,15 @@ def getSpacingDims(coordinates, warn=True):
         if warn:
             logger.warning('Datasets are not unique in dimensional space. Duplicate keys present. Try again with '
                            'additional sorting methods')
-            logger.debug('numNZIndices: %i, nzIndices: %s, differences: %s' % (numNZIndices, nzIndices, diffs))
+            logger.debug('Dimension #%i key values: %s' % (len(coordinates), coordinates[-1]))
+            logger.debug('Differences in key values: %s' % diffs)
+            logger.debug('Number of non-zero changes: %i' % numNZIndices)
+            logger.debug('Location of non-zero changes in: %s' % nzIndices)
         else:
-            logger.debug('numNZIndices: %i, nzIndices: %s, differences: %s' % (numNZIndices, nzIndices, diffs))
+            logger.debug('Dimension #%i key values: %s' % (len(coordinates), coordinates[-1]))
+            logger.debug('Differences in key values: %s' % diffs)
+            logger.debug('Number of non-zero changes: %i' % numNZIndices)
+            logger.debug('Location of non-zero changes in: %s' % nzIndices)
             raise Exception('Datasets are not unique in dimensional space. Duplicate keys present. Try again with '
                             'additional sorting methods')
 
