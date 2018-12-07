@@ -1,15 +1,15 @@
-from enum import Enum, auto
+from enum import IntFlag, Enum, auto
 import logging
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
-# TODO Need to reevaluate this because we may have N-D volumes that are spatial temporal all at once.
-class VolumeType(Enum):
-    Unknown = auto()
+class VolumeType(IntFlag):
+    Unknown = 0
     Spatial = auto()
     Temporal = auto()
+    SpatioTemporal = Spatial | Temporal
 
 
 class MethodType(Enum):
@@ -113,17 +113,22 @@ def isMethodValid(series, method):
         raise TypeError('Invalid method specified')
 
 
-# TODO Evaluate if I need this function
-def getTypeFromMethod(method):
-    """
-    Select the type of volume based off the method used to combine slices
-    """
-    if method in [MethodType.SliceLocation, MethodType.PatientLocation]:
-        return VolumeType.Spatial
-    elif method in [MethodType.TriggerTime, MethodType.AcquisitionDateTime]:
-        return VolumeType.Temporal
-    else:
-        return VolumeType.Unknown
+def getTypeFromMethods(methods):
+    # Make a list out of the method if it is not one
+    if not isinstance(methods, list):
+        methods = [methods]
+
+    volumeType = VolumeType.Unknown
+
+    for method in methods:
+        if method in [MethodType.SliceLocation, MethodType.PatientLocation, MethodType.StackPosition,
+                      MethodType.FrameAcquisitionNumber, MethodType.MFPatientLocation]:
+            volumeType |= VolumeType.Spatial
+        elif method in [MethodType.TriggerTime, MethodType.AcquisitionDateTime, MethodType.TemporalPositionIndex,
+                        MethodType.MFAcquisitionDateTime, MethodType.CardiacTriggerTime, MethodType.CardiacPercentage]:
+            volumeType |= VolumeType.Temporal
+
+    return volumeType
 
 
 def getBestMethods(series):

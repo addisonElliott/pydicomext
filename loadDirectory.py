@@ -63,7 +63,7 @@ def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):
             if dataset.SeriesInstanceUID != seriesID:
                 continue
 
-            series = Series(dataset)
+            series = Series(dataset=dataset)
         else:
             # Check for existing series within study, if not add a new series
             if dataset.SeriesInstanceUID in study:

@@ -144,6 +144,44 @@ class Series(list):
         """
         return getBestMethods(self)
 
+    @property
+    def volumeType(self):
+        return getTypeFromMethods(self._methods) if self._methods else VolumeType.Unknown
+
+    @property
+    def isSpatial(self):
+        return self.volumeType() & VolumeType.Spatial
+
+    @property
+    def isTemporal(self):
+        return self.volumeType() & VolumeType.Temporal
+
+    def sortSeries(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
+                   spacingTolerance=0.01):
+        """Sorts datasets in series based on its metadata
+
+        Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
+        spatial or temporal based.
+
+        Parameters
+        ----------
+        method : MethodType or list(MethodType), optional
+            A single method or a list of methods to use when sorting the series. If this is :obj:`MethodType.Unknown`, then
+            the best methods will be retrieved based on the datasets metadata. If a list of methods are given, then the
+            series is sorted in order from left to right of the methods. This in effect will create multidimensional series
+            (the default is MethodType.Unknown which will retrieve the best methods based on the series)
+        reverse : bool, optional
+            Whether or not to reverse the sort, where the default sorting order is ascending (the default is False)
+        squeeze : bool, optional
+            Whether to remove unnecessary dimensions of size 1 (default is False, meaning dimensions are untouched). The
+            resulting methods and spacing will be updated accordingly to remove unnecessary dimensions of size 1.
+        warn : bool, optional
+            Whether to warn or raise an exception for non-uniform grid spacing (default is True which will display warnings
+            rather than exceptions)
+        """
+
+        sortSeries(self, methods, reverse, squeeze, warn, shapeTolerance, spacingTolerance)
+
     def __str__(self):
         return """Series %s
     Date: %s
@@ -155,5 +193,3 @@ class Series(list):
 
     def __repr__(self):
         return self.__str__()
-
-    # TODO Consider a function that tells best method type and volume type of this
