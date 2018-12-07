@@ -199,14 +199,45 @@ def getBestMethod(series):
     return method
 
 
-def slicePositionsFromPatientInfo(datasets):
-    """
-    This function is used for the MethodType.PatientLocation method. It retrieves the slice location from the
-    Patient Image Orientation and Patient Image Position fields.
+def slicePositionsFromPatientInfo(series):
+    """Calculates slice location from the Image Orientation/Position fields
 
-    :return: Returns a list of slice positions for the current dataset.
+    Function used for MethodType.PatientLocation and MethodType.MFPatientLocation methods. It calculates the slice
+    location from the Image Orientation (Patient) and Image Position (Patient) fields in the DICOM header. For
+    Multi-Frame images, the same fields are used but they are stored elsewhere in the frame functional group.
+
+    Parameters
+    ----------
+    series : Series
+
+    Returns
+    -------
+    [type]
+        [description]
     """
-    imageOrientation = datasets[0].ImageOrientationPatient
+
+    if series.isMultiFrame:
+        pass
+    else:
+        pass
+
+    # Okay, so here is a puzzling question that I do not know how I want to solve. What if there are multiple image orientations. In this case, I assume that's not going to happen and just use the first one. But do I do the same thing for the multi-frame DICOM as well. Is that a safe bet?
+    #
+    # One instance that I can think of is if a series contains multiple orientations. But, the thing about that is I probably wouldn't try to combine these. Well, yes I would, but just based on stack ID I guess, right?
+    # In that case, I would use sortSlices for StackID, then some sort of split command to split the series into multiple
+    # based on that parameter?
+    #
+    # If I am sorting based on position, which is what this function is used for. Then I don't see any reason why different orientations would be used because I **don't** know how you would even piece those together.
+    #
+    # Maybe on that note, I should change isMethodValid to include a check for that.
+    #
+    # Well shoot, what about we combining slices, we need that slice orientation somehow. Do we just assume that the slice orientation is the same?
+    #
+    # on that note, it's just the same as checking pixel spacing and such. Do we just assume that is the same all the way throughout for all images? Do we check it somewhere?
+    #
+    # So, I'm thinking maybe a function like checkPatientLocation() that will verify they are all the same or throws an Exception/warning. That will be called in sortSlices, well maybe not. I hate to call it multiple times, you know? Not sure..
+
+    imageOrientation = series[0].ImageOrientationPatient
 
     # Row cosines is first 3 elements, column cosines is last 3 elements of array
     rowCosines = np.array(imageOrientation[:3])
@@ -216,7 +247,7 @@ def slicePositionsFromPatientInfo(datasets):
     sliceCosines = np.cross(rowCosines, colCosines)
 
     # Slice location is dot product of slice cosines and the image patient position
-    return sliceCosines, [np.dot(sliceCosines, d.ImagePositionPatient) for d in datasets]
+    return sliceCosines, [np.dot(sliceCosines, d.ImagePositionPatient) for d in series]
 
 
 def datasetDeleteOrRemove(dataset, key, value):
