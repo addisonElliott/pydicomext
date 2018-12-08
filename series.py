@@ -156,8 +156,8 @@ class Series(list):
     def isTemporal(self):
         return self.volumeType() & VolumeType.Temporal
 
-    def sortSeries(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
-                   spacingTolerance=0.01):
+    def sort(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
+             spacingTolerance=0.01):
         """Sorts datasets in series based on its metadata
 
         Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
@@ -180,16 +180,18 @@ class Series(list):
             rather than exceptions)
         """
 
-        sortSeries(self, methods, reverse, squeeze, warn, shapeTolerance, spacingTolerance)
+        return sortSeries(self, methods, reverse, squeeze, warn, shapeTolerance, spacingTolerance)
 
     def __str__(self):
         return """Series %s
     Date: %s
     Time: %s
     Desc: %s
-    Number: %i
+    Number: %s
     [%i datasets]%s""" % (self.ID, self.date, self.time, self.description, self.number, len(self),
                           (' (Multi-frame)' if self.isMultiFrame else ''))
 
     def __repr__(self):
         return self.__str__()
+
+from .sortSeries import sortSeries

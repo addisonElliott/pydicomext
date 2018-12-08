@@ -261,6 +261,7 @@ def getZPositionsFromPatientInfo(series):
     # Get cross product of row and column cosines (gets normal to row/column cosines)
     zCosines = np.cross(rowCosines, colCosines)
 
+    # TODO Remove me when done
     # Okay, so here is a puzzling question that I do not know how I want to solve. What if there are multiple image orientations. In this case, I assume that's not going to happen and just use the first one. But do I do the same thing for the multi-frame DICOM as well. Is that a safe bet?
     #
     # One instance that I can think of is if a series contains multiple orientations. But, the thing about that is I probably wouldn't try to combine these. Well, yes I would, but just based on stack ID I guess, right?
