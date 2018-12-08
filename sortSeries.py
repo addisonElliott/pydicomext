@@ -115,10 +115,6 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     sortedSeries._spacing = spacing
     sortedSeries._methods = methods
 
-    # TODO Include shape/spacing for images themselves? Pixel spacing, etc?
-    # Don't think I like this idea, rather I would like a method in the series to return the pixel/image spacing and
-    # then add it on
-
     # Return methods as well because the user may have set the method type to unknown to retrieve best method type, so
     # they would want to know the results
     return sortedSeries
