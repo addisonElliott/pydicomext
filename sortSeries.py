@@ -118,3 +118,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     # Return methods as well because the user may have set the method type to unknown to retrieve best method type, so
     # they would want to know the results
     return sortedSeries
+
+# TODO Create combine method here
+# TODO Document additional methods I want for future use, flatten, preflatten etc so I don't forget that
+# TODO Update README with **some** information at least
