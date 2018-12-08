@@ -1,14 +1,13 @@
 import numpy as np
 import pydicom
 
-from .sortSeries import sortSeries
 from .util import *
 
 pydicom.config.datetime_conversion = True
 
 
 def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
-                  spacingTolerance=0.01):
+                  spacingTolerance=0.1):
     """
     Combines the given dataset for Volume into a 3D volume. In addition, some parameters for the volume are
     calculated, such as:
@@ -21,8 +20,17 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
         raise TypeError('Series must contain at least one dataset')
 
     if series.isMultiFrame:
+        imageShapes = []
+        imageSpacings = []
+        imageOrientations = []
+        images = []
+
+        # series[0].PixelMeasuresSequence[0].PixelSpacing SliceThickness SpacingBetweenSlices
         for dataset in series:
-            pass
+            imageShapes.append(dataset.pixel_array.shape)
+            imageSpacings.append(dataset.PixelSpacing)
+            imageOrientations.append(dataset.ImageOrientationPatient)
+            images.append(dataset.pixel_array)
 
         return None
     else:

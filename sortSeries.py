@@ -7,7 +7,7 @@ pydicom.config.datetime_conversion = True
 
 
 def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
-               spacingTolerance=0.01):
+               spacingTolerance=0.1):
     """Sorts datasets in series based on its metadata
 
     Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
@@ -95,6 +95,9 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     # Sorted series is the last element and the remaining items are the keys used for sorting
     # Wrap the sorted series back into Series class because it is a tuple
     sortedSeries, sortedKeys = Series(sortedKeys[-1]), sortedKeys[:-1]
+
+    # Update to determine if series is multiframe
+    sortedSeries.checkIsMultiFrame()
 
     # From the sorted keys, get the shape of the ND data and spacing
     shape, spacing = getSpacingDims(sortedKeys, warn, shapeTolerance, spacingTolerance)

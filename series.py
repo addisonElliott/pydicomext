@@ -157,7 +157,7 @@ class Series(list):
         return self.volumeType() & VolumeType.Temporal
 
     def sort(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
-             spacingTolerance=0.01):
+             spacingTolerance=0.1):
         """Sorts datasets in series based on its metadata
 
         Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
