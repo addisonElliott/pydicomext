@@ -114,12 +114,30 @@ def isMethodValid(series, method):
 
 
 def getTypeFromMethods(methods):
+    """Retrieve the volume type based on the methods used for sorting
+
+    A volume can be spatial, temporal or spatiotemporal. Depending on the methods used to sort the series, this
+    function determines the volume type.
+
+    Parameters
+    ----------
+    methods : MethodType, list(MethodType)
+        A single method or a list of methods used to sort a series
+
+    Returns
+    -------
+    VolumeType
+        Volume type based on the given methods
+    """
+
     # Make a list out of the method if it is not one
     if not isinstance(methods, list):
         methods = [methods]
 
+    # Starting volume type
     volumeType = VolumeType.Unknown
 
+    # Loop through all methods and if its spatial or temporal, add that
     for method in methods:
         if method in [MethodType.SliceLocation, MethodType.PatientLocation, MethodType.StackPosition,
                       MethodType.FrameAcquisitionNumber, MethodType.MFPatientLocation]:

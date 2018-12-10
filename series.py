@@ -31,6 +31,14 @@ class Series(list):
             self.extend(datasets)
 
     def loadMultiFrame(self):
+        """Load multiframe data based on what datasets are in the series
+
+        This function should not be called unless you know what you are doing.
+
+        This should only be called once after the DICOM file has been loaded.
+        """
+
+
         # Reset to original value
         self._isMultiFrame = False
 
@@ -55,23 +63,57 @@ class Series(list):
             self.remove(dataset)
 
     def checkIsMultiFrame(self):
+        """Check if this series is multiframe or not
+
+        This only needs to be called when new datasets are added or removed from the series. 
+
+        This value is cached.
+        """
+
         # Check all datasets for the parent attribute, if any are present, then we have multiframe data
         self._isMultiFrame = any([hasattr(dataset, 'parent') for dataset in self])
 
     @property
     def isMultiFrame(self):
+        """Whether or not this series is multiframe"""
+
         return self._isMultiFrame
 
     @property
     def shape(self):
+        """Shape of the volume excluding the 2D image size
+
+        This value will only be populated after sorting the series based on whatever method types are given.
+
+        This array does not include the image shape itself and the shape size is in order of how the method types were
+        specified when the series was sorted.
+
+        Returns None if the series has not been sorted.
+        """
+
         return self._shape
 
     @property
     def spacing(self):
+        """Spacing of each dimension of the volume excluding the 2D image pixel spacing
+
+        This value will only be populated after sorting the series based on whatever method types are given.
+
+        This array does not include the image pixel spacing itself and the spacing is in order of how the method types
+        were specified when the series was sorted.
+
+        Returns None if the series has not been sorted.
+        """
         return self._spacing
 
     @property
     def sortMethods(self):
+        """Methods used to sort the series
+
+        This value will only be populated after sorting the series based on whatever method types are given.
+
+        Returns None if the series has not been sorted.
+        """
         return self._methods
 
     def clearSeries(self):
