@@ -19,59 +19,58 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     elif len(series) == 0:
         raise TypeError('Series must contain at least one dataset')
 
+    imageShapes = []
+    imageSpacings = []
+    imageThicknesses = []
+    imageSliceSpacings = []
+    imageOrientations = []
+    images = []
+
     if series.isMultiFrame:
-        imageShapes = []
-        imageSpacings = []
-        imageOrientations = []
-        images = []
-
-        # series[0].PixelMeasuresSequence[0].PixelSpacing SliceThickness SpacingBetweenSlices
         for dataset in series:
-            imageShapes.append(dataset.pixel_array.shape)
-            imageSpacings.append(dataset.PixelSpacing)
-            imageOrientations.append(dataset.ImageOrientationPatient)
-            images.append(dataset.pixel_array)
-
-        return None
+            imageShapes.append(dataset.parent.pixel_array.shape[1:])
+            imageSpacings.append(dataset.PixelMeasuresSequence[0].PixelSpacing if 'PixelSpacing' in
+                                 dataset.PixelMeasuresSequence[0] else (1, 1))
+            imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness if 'SliceThickness' in
+                                    dataset.PixelMeasuresSequence[0] else -1.0)
+            imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices if 'SpacingBetweenSlices' in
+                                      dataset.PixelMeasuresSequence[0] else -1.0)
+            imageOrientations.append(dataset.PlaneOrientationSequence[0].ImageOrientationPatient)
+            images.append(dataset.parent.pixel_array[dataset.sliceIndex, :, :])
     else:
-        imageShapes = []
-        imageSpacings = []
-        imageOrientations = []
-        images = []
-
         for dataset in series:
             imageShapes.append(dataset.pixel_array.shape)
-            imageSpacings.append(dataset.PixelSpacing)
+            imageSpacings.append(dataset.PixelSpacing if 'PixelSpacing' in dataset else (1, 1))
             imageOrientations.append(dataset.ImageOrientationPatient)
             images.append(dataset.pixel_array)
 
-        if not np.allclose(imageShapes, imageShapes[0], rtol=0.01):
-            logger.debug('Datasets shape: %s' % imageShapes)
-            raise Exception('Datasets do not have the same shape. Unable to combine into one volume')
+    if not np.allclose(imageShapes, imageShapes[0], rtol=0.01):
+        logger.debug('Datasets shape: %s' % imageShapes)
+        raise Exception('Datasets do not have the same shape. Unable to combine into one volume')
 
-        if not np.allclose(imageSpacings, imageSpacings[0], rtol=0.1):
-            if warn:
-                logger.warning('Datasets image spacing are not uniform')
-                logger.debug('Datasets spacings: %s' % imageSpacings)
-            else:
-                logger.debug('Datasets spacings: %s' % imageSpacings)
-                raise Exception('Datasets image spacing are not uniform')
+    if not np.allclose(imageSpacings, imageSpacings[0], rtol=0.1):
+        if warn:
+            logger.warning('Datasets image spacing are not uniform')
+            logger.debug('Datasets spacings: %s' % imageSpacings)
+        else:
+            logger.debug('Datasets spacings: %s' % imageSpacings)
+            raise Exception('Datasets image spacing are not uniform')
 
-        if not np.allclose(imageOrientations, imageOrientations[0], rtol=0.1):
-            if warn:
-                logger.warning('Datasets image orientation are not the same')
-                logger.debug('Datasets orientations: %s' % imageOrientations)
-            else:
-                logger.debug('Datasets orientations: %s' % imageOrientations)
-                raise Exception('Datasets image orientation are not the same')
+    if not np.allclose(imageOrientations, imageOrientations[0], rtol=0.1):
+        if warn:
+            logger.warning('Datasets image orientation are not the same')
+            logger.debug('Datasets orientations: %s' % imageOrientations)
+        else:
+            logger.debug('Datasets orientations: %s' % imageOrientations)
+            raise Exception('Datasets image orientation are not the same')
 
-        # Use the first values of datasets since we **assume** these are all the same
-        imageShape = imageShapes[0]
-        imageSpacing = imageSpacings[0]
-        imageOrientation = imageOrientations[0]
+    # Use the first values of datasets since we **assume** these are all the same
+    imageShape = imageShapes[0]
+    imageSpacing = imageSpacings[0]
+    imageOrientation = imageOrientations[0]
 
-        # Create 3D volume from stack of 2D images (will reshape this later into N-D data)
-        volume = np.dstack(images)
+    # Create 3D volume from stack of 2D images (will reshape this later into N-D data)
+    volume = np.dstack(images)
 
     # DICOM uses LPS space
     space = 'left-posterior-superior'
