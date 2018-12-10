@@ -31,10 +31,6 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
             imageShapes.append(dataset.parent.pixel_array.shape[1:])
             imageSpacings.append(dataset.PixelMeasuresSequence[0].PixelSpacing if 'PixelSpacing' in
                                  dataset.PixelMeasuresSequence[0] else (1, 1))
-            imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness if 'SliceThickness' in
-                                    dataset.PixelMeasuresSequence[0] else -1.0)
-            imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices if 'SpacingBetweenSlices' in
-                                      dataset.PixelMeasuresSequence[0] else -1.0)
             imageOrientations.append(dataset.PlaneOrientationSequence[0].ImageOrientationPatient)
             images.append(dataset.parent.pixel_array[dataset.sliceIndex, None, :, :])
     else:
@@ -68,16 +64,6 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     imageShape = imageShapes[0]
     imageSpacing = imageSpacings[0]
     imageOrientation = imageOrientations[0]
-
-    # TODO Document me, maybe make separate function?
-    imageThickness = np.unique(imageThicknesses)
-    if len(imageThickness) == 1:
-        imageThickness = imageThickness[0]
-
-    # TODO Document me
-    imageSliceSpacing = np.unique(imageSliceSpacings)
-    if len(imageSliceSpacing) == 1:
-        imageSliceSpacing = imageSliceSpacing[0]
 
     # Tack on the multidimensional shape and spacing calculated from sort series
     # This is prepended because we are using C-ordering meaning slower varying indices come first

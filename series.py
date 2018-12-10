@@ -190,19 +190,23 @@ class Series(list):
         metadata. If there are different slice spacings and/or thicknesses, then an array of the different values
         will be returned.
 
+        This function becomes useful for retrieving the spacing between slices when your sort series method does not
+        inherently contain that information. Examples include stack position which will return a spacing of 1.0 most
+        likely indicating that the images are stacked numerically in order.
+
         Returns
         -------
-        float or (M,) numpy.ndarray, float or (N,) numpy.ndarray
-            Slice thickness from series. Will return a single number if all of the series have the same value,
-            otherwise an array of the unique values are given.
         float or (N,) numpy.ndarray
             Spacing between slices from series. Will return a single number if all of the series have the same value,
+            otherwise an array of the unique values are given.
+        float or (M,) numpy.ndarray, float or (N,) numpy.ndarray
+            Slice thickness from series. Will return a single number if all of the series have the same value,
             otherwise an array of the unique values are given.
         """
 
         # Empty lists for the thickness and slice spacings for each series
-        imageThicknesses = []
         imageSliceSpacings = []
+        imageThicknesses = []
 
         # Retrieve the slice spacing and slice thickness for each series
         # Note: This information is located in different spots if the image is multi-frame
@@ -210,21 +214,15 @@ class Series(list):
         # This should allow the user to tell if there is missing data because a negative thickness or spacing is invalid
         if self.isMultiFrame:
             for dataset in self:
-                imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness if 'SliceThickness' in
-                                        dataset.PixelMeasuresSequence[0] else -1.0)
                 imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices if
                                           'SpacingBetweenSlices' in dataset.PixelMeasuresSequence[0] else -1.0)
+                imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness if 'SliceThickness' in
+                                        dataset.PixelMeasuresSequence[0] else -1.0)
         else:
             for dataset in self:
-                imageThicknesses.append(dataset.SliceThickness if 'SliceThickness' in dataset else -1.0)
                 imageSliceSpacings.append(dataset.SpacingBetweenSlices if 'SpacingBetweenSlices' in
                                           dataset else -1.0)
-
-        # Retrieve a list of unique image thicknesses from the series'
-        # If there is only one item in the array, they all have the same thickness and we will just return that
-        imageThickness = np.unique(imageThicknesses)
-        if len(imageThickness) == 1:
-            imageThickness = imageThickness[0]
+                imageThicknesses.append(dataset.SliceThickness if 'SliceThickness' in dataset else -1.0)
 
         # Retrieve a list of unique image slice spacings from the series'
         # If there is only one item in the array, they all have the same slice spacing and we will just return that
@@ -232,7 +230,13 @@ class Series(list):
         if len(imageSliceSpacing) == 1:
             imageSliceSpacing = imageSliceSpacing[0]
 
-        return imageThickness, imageSliceSpacing
+        # Retrieve a list of unique image thicknesses from the series'
+        # If there is only one item in the array, they all have the same thickness and we will just return that
+        imageThickness = np.unique(imageThicknesses)
+        if len(imageThickness) == 1:
+            imageThickness = imageThickness[0]
+
+        return imageSliceSpacing, imageThickness
 
     def __str__(self):
         return """Series %s
