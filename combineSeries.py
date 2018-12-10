@@ -36,13 +36,13 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
             imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices if 'SpacingBetweenSlices' in
                                       dataset.PixelMeasuresSequence[0] else -1.0)
             imageOrientations.append(dataset.PlaneOrientationSequence[0].ImageOrientationPatient)
-            images.append(dataset.parent.pixel_array[dataset.sliceIndex, :, :])
+            images.append(dataset.parent.pixel_array[dataset.sliceIndex, None, :, :])
     else:
         for dataset in series:
             imageShapes.append(dataset.pixel_array.shape)
             imageSpacings.append(dataset.PixelSpacing if 'PixelSpacing' in dataset else (1, 1))
             imageOrientations.append(dataset.ImageOrientationPatient)
-            images.append(dataset.pixel_array)
+            images.append(dataset.pixel_array[None, :, :])
 
     if not np.allclose(imageShapes, imageShapes[0], rtol=0.01):
         logger.debug('Datasets shape: %s' % imageShapes)
@@ -69,8 +69,25 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     imageSpacing = imageSpacings[0]
     imageOrientation = imageOrientations[0]
 
-    # Create 3D volume from stack of 2D images (will reshape this later into N-D data)
-    volume = np.dstack(images)
+    # TODO Document me, maybe make separate function?
+    imageThickness = np.unique(imageThicknesses)
+    if len(imageThickness) == 1:
+        imageThickness = imageThickness[0]
+
+    # TODO Document me
+    imageSliceSpacing = np.unique(imageSliceSpacings)
+    if len(imageSliceSpacing) == 1:
+        imageSliceSpacing = imageSliceSpacing[0]
+
+    # Tack on the multidimensional shape and spacing calculated from sort series
+    # This is prepended because we are using C-ordering meaning slower varying indices come first
+    imageShape = series.shape + imageShape
+    imageSpacing = series.spacing + imageSpacing
+
+    # Create 3D volume from stack of 2D images
+    # Reshape the volume into the image shape
+    volume = np.vstack(images)
+    volume = volume.reshape(imageShape)
 
     # DICOM uses LPS space
     space = 'left-posterior-superior'

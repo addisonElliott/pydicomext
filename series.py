@@ -160,27 +160,79 @@ class Series(list):
              spacingTolerance=0.1):
         """Sorts datasets in series based on its metadata
 
-        Sorting the datasets within the series can be done based on a number of parameters, which are primarily going to be
-        spatial or temporal based.
+        Sorting the datasets within the series can be done based on a number of parameters, which are primarily going
+        to be spatial or temporal based.
 
         Parameters
         ----------
         method : MethodType or list(MethodType), optional
-            A single method or a list of methods to use when sorting the series. If this is :obj:`MethodType.Unknown`, then
-            the best methods will be retrieved based on the datasets metadata. If a list of methods are given, then the
-            series is sorted in order from left to right of the methods. This in effect will create multidimensional series
-            (the default is MethodType.Unknown which will retrieve the best methods based on the series)
+            A single method or a list of methods to use when sorting the series. If this is :obj:`MethodType.Unknown`,
+            then the best methods will be retrieved based on the datasets metadata. If a list of methods are given,
+            then the series is sorted in order from left to right of the methods. This in effect will create
+            multidimensional series (the default is MethodType.Unknown which will retrieve the best methods based on
+            the series)
         reverse : bool, optional
             Whether or not to reverse the sort, where the default sorting order is ascending (the default is False)
         squeeze : bool, optional
             Whether to remove unnecessary dimensions of size 1 (default is False, meaning dimensions are untouched). The
             resulting methods and spacing will be updated accordingly to remove unnecessary dimensions of size 1.
         warn : bool, optional
-            Whether to warn or raise an exception for non-uniform grid spacing (default is True which will display warnings
-            rather than exceptions)
+            Whether to warn or raise an exception for non-uniform grid spacing (default is True which will display
+            warnings rather than exceptions)
         """
 
         return sortSeries(self, methods, reverse, squeeze, warn, shapeTolerance, spacingTolerance)
+
+    def getSliceSpacingThickness(self):
+        """Return the slice spacing and slice thickness in the series
+
+        This function will obtain the slice spacing (0018, 0088) and slice thickness (0018, 0050) from the DICOM
+        metadata. If there are different slice spacings and/or thicknesses, then an array of the different values
+        will be returned.
+
+        Returns
+        -------
+        float or (M,) numpy.ndarray, float or (N,) numpy.ndarray
+            Slice thickness from series. Will return a single number if all of the series have the same value,
+            otherwise an array of the unique values are given.
+        float or (N,) numpy.ndarray
+            Spacing between slices from series. Will return a single number if all of the series have the same value,
+            otherwise an array of the unique values are given.
+        """
+
+        # Empty lists for the thickness and slice spacings for each series
+        imageThicknesses = []
+        imageSliceSpacings = []
+
+        # Retrieve the slice spacing and slice thickness for each series
+        # Note: This information is located in different spots if the image is multi-frame
+        # If the slice thickness or spacing is not available in that series, then it will be set to -1
+        # This should allow the user to tell if there is missing data because a negative thickness or spacing is invalid
+        if self.isMultiFrame:
+            for dataset in self:
+                imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness if 'SliceThickness' in
+                                        dataset.PixelMeasuresSequence[0] else -1.0)
+                imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices if
+                                          'SpacingBetweenSlices' in dataset.PixelMeasuresSequence[0] else -1.0)
+        else:
+            for dataset in self:
+                imageThicknesses.append(dataset.SliceThickness if 'SliceThickness' in dataset else -1.0)
+                imageSliceSpacings.append(dataset.SpacingBetweenSlices if 'SpacingBetweenSlices' in
+                                          dataset else -1.0)
+
+        # Retrieve a list of unique image thicknesses from the series'
+        # If there is only one item in the array, they all have the same thickness and we will just return that
+        imageThickness = np.unique(imageThicknesses)
+        if len(imageThickness) == 1:
+            imageThickness = imageThickness[0]
+
+        # Retrieve a list of unique image slice spacings from the series'
+        # If there is only one item in the array, they all have the same slice spacing and we will just return that
+        imageSliceSpacing = np.unique(imageSliceSpacings)
+        if len(imageSliceSpacing) == 1:
+            imageSliceSpacing = imageSliceSpacing[0]
+
+        return imageThickness, imageSliceSpacing
 
     def __str__(self):
         return """Series %s
@@ -193,5 +245,6 @@ class Series(list):
 
     def __repr__(self):
         return self.__str__()
+
 
 from .sortSeries import sortSeries
