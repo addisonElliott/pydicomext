@@ -355,6 +355,19 @@ def getSpacingDims(coordinates, warn=True, shapeTolerance=0.01, spacingTolerance
         2D list where the first list contains a list of coordinates for each dimension
     warn : bool, optional
         Whether to warn or raise an exception for non-uniform grid spacing
+    shapeTolerance : float, optional
+        Amount of relative tolerance to allow between the shape. Default value is 1% (0.01) which should be sufficient
+        in most cases. There should not be much deviation in the shape or else the volume cannot be combined easily.
+
+        Note: Only the first shape calculated is used but this tolerance is used to verify that the shape is similar to
+        all others.
+    spacingTolerance : float, optional
+        Amount of relative tolerance to allow between the spacing. Default value is 10% (0.10) which should be
+        sufficient in most cases. However, there are instances where the coordinates have non-uniform spacing
+        in which case the tolerance should be increased if the user verifies everything is alright.
+
+        Note: Only the first spacing calculated is used but this tolerance is used to verify that spacing is similar to
+        all others.
 
     Returns
     -------

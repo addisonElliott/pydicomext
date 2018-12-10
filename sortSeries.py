@@ -16,7 +16,7 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     Parameters
     ----------
     series : Series
-    method : MethodType or list(MethodType), optional
+    methods : MethodType or list(MethodType), optional
         A single method or a list of methods to use when sorting the series. If this is :obj:`MethodType.Unknown`, then
         the best methods will be retrieved based on the datasets metadata. If a list of methods are given, then the
         series is sorted in order from left to right of the methods. This in effect will create multidimensional series
@@ -29,6 +29,22 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     warn : bool, optional
         Whether to warn or raise an exception for non-uniform grid spacing (default is True which will display warnings
         rather than exceptions)
+    shapeTolerance : float, optional
+        Amount of relative tolerance to allow between the shape. Default value is 1% (0.01) which should be sufficient
+        in most cases. There should not be much deviation in the shape or else the volume cannot be combined easily.
+
+        Note: Only the first shape calculated is used but this tolerance is used to verify that the shape is similar to
+        all others.
+    spacingTolerance : float, optional
+        Amount of relative tolerance to allow between the spacing. Default value is 10% (0.10) which should be
+        sufficient in most cases. However, there are instances where the coordinates have non-uniform spacing
+        in which case the tolerance should be increased if the user verifies everything is alright.
+
+        An example of where this parameter becomes useful is for the TriggerTime method because the trigger time may
+        not be the same throughout the process.
+
+        Note: Only the first spacing calculated is used but this tolerance is used to verify that spacing is similar to
+        all others.
     """
 
     if len(series) == 0:

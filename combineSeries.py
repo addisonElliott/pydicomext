@@ -9,11 +9,57 @@ pydicom.config.datetime_conversion = True
 
 def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
                   spacingTolerance=0.1):
+    """Combines a series into an N-D Numpy array and returns some information about the volume
+
+    Many of the parameters are from the :meth:`sortSeries` function which this function will call unless the series has
+    already been sorted once before.
+
+    After combining the series into a N-D volume, the following additional parameters are calculated and inserted into
+    the :class:`Volume` class:
+    * Origin
+    * Orientation
+    * Spacing
+    * Coordinate system
+
+    Parameters
+    ----------
+    series : Series
+    methods : MethodType or list(MethodType), optional
+        See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been sorted
+        yet.
+    reverse : bool, optional
+        See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been sorted
+        yet.
+    squeeze : bool, optional
+        See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been sorted
+        yet.
+    warn : bool, optional
+        See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been sorted
+        yet.
+    shapeTolerance : float, optional
+        See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been sorted
+        yet.
+    spacingTolerance : float, optional
+        See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been sorted
+        yet.
+
+    Raises
+    ------
+    TypeError
+        [description]
+    Exception
+        [description]
+    Exception
+        [description]
+    Exception
+        [description]
+    
+    Returns
+    -------
+    [type]
+        [description]
     """
-    Combines the given dataset for Volume into a 3D volume. In addition, some parameters for the volume are
-    calculated, such as:
-        Origin, spacing, coordinate system, and orientation.
-    """
+
 
     # TODO Redo the return documentation on everything, split into multiple apparently
     # TODO Redo this docstring
