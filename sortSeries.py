@@ -45,6 +45,16 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
 
         Note: Only the first spacing calculated is used but this tolerance is used to verify that spacing is similar to
         all others.
+
+    Raises
+    ------
+    TypeError
+        If the series is empty or the method is invalid
+
+    Returns
+    -------
+    Series
+        Series that has been sorted
     """
 
     if len(series) == 0:

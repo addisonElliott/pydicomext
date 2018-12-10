@@ -46,18 +46,16 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     Raises
     ------
     TypeError
-        [description]
+        If the series is empty
     Exception
-        [description]
+        If datasets do not have the same image shape
     Exception
-        [description]
-    Exception
-        [description]
-    
+        If datasets do not have uniform image spacing or orientation
+
     Returns
     -------
-    [type]
-        [description]
+    Volume
+        Volume that contains Numpy array, origin, spacing and other relevant information
     """
 
 
