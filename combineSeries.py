@@ -77,6 +77,12 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     space = 'left-posterior-superior'
 
     # TODO Swap rows/columns of pixel array or give option to do this
+    # Nope, we are going to use C-order indexing which is what pydicom abides by.
+    # Thus, shape of image is (frame, row, col) or (frame, y, x)
+    # This means any multidimensional info should be in front like:
+    # (t, z, y, x)
+    # Plenty of libraries in Python are using C-ordered indexing which Numpy defaults to so I want to stick with that.
+    # A simple transpose and reversal of data will work.
 
     # Row cosines is first 3 elements, column cosines is last 3 elements of array, compute z cosines from row/col
     rowCosines = np.array(imageOrientation[:3])
