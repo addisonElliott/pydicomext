@@ -116,6 +116,17 @@ class Series(list):
         return self._methods
 
     def clearSeries(self):
+        """Clears metadata in series
+
+        This function clears the ID, date, time, description & number field from the series. The primary purpose of
+        this function is to prevent the user from reading this information from an altered series and thinking the
+        information is still valid for the series.
+
+        This function should be called when multiple series are merged together or if a new series is constructed. The
+        only time this information should be present is when the **original** structure of the series (as loaded from
+        the DICOM file) is in tact.
+        """
+
         self.ID = None
         self.date = None
         self.time = None

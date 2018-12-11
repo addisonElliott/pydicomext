@@ -292,7 +292,7 @@ def getZPositionsFromPatientInfo(series):
     return [np.dot(zCosines, position) for position in imagePositions]
 
 
-def datasetDeleteOrRemove(dataset, key, value):
+def datasetUpdateOrRemove(dataset, key, value):
     """Delete key from dataset if value is None, otherwise set key to value
 
     Parameters
