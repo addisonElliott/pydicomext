@@ -166,7 +166,7 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     # will need to be inverted to accurately reflect the orientation. No metadata for if the series is reverse sorted
     # is not stored and I don't think it is worth storing. Rather, I have decided to leave it up to the user to change
     # that last dimension if necessary. Until there is an valid application where reverse is used then I won't bother
-    orientation = np.hstack((colCosines[:, None], rowCosines[:, None], zCosines[:, None]))
+    orientation = np.hstack((rowCosines[:, None], colCosines[:, None], zCosines[:, None]))
 
     # Return Volume class containing information about the volume
     # It's a basic wrapper class to contain any relevant data for the volume
