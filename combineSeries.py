@@ -59,7 +59,6 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     """
 
 
-    # TODO Redo the return documentation on everything, split into multiple apparently
     # TODO Redo this docstring
 
     # TODO Swap rows/columns of pixel array or give option to do this

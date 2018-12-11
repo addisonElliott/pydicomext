@@ -389,8 +389,10 @@ def getSpacingDims(coordinates, warn=True, shapeTolerance=0.01, spacingTolerance
 
     Returns
     -------
-    list(int), list(float)
-        First element of tuple is the dimensions and second element is the spacing per dimension
+    list(int)
+        List of shape of each dimension
+    list(float)
+        List of spacing per dimension
     """
 
     # Total number of indices, for instance above this is 2 * 3 * 5 = 30
