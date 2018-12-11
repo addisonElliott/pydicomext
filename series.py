@@ -116,7 +116,7 @@ class Series(list):
         return self._methods
 
     def clearSeries(self):
-        """Clears metadata in series
+        """Clears series-related information from series
 
         This function clears the ID, date, time, description & number field from the series. The primary purpose of
         this function is to prevent the user from reading this information from an altered series and thinking the
@@ -134,6 +134,34 @@ class Series(list):
         self.number = None
 
     def update(self, ID, date=None, time=None, description=None, number=None, startNewIndex=0):
+        """Update series-related information in the series
+
+        This function updates the ID, date, time, description & number of the series. First and foremost, it updates
+        the values stores in the :class:`Series` itself, but also updates the values in each of the DICOM datasets. If
+        any of the optional values are set to None, then the field will be removed from the dataset.
+
+        This function should be called when a new Series is created and you want to save it. First a new ID should be
+        generated from pydicom and the other optional data can be filled in as well.
+
+        Parameters
+        ----------
+        ID : :class:`pydicom.uid.UID`
+            UID for this Series
+        date : :class:`datetime.date`, optional
+            Date at which series was created. Recommended to use current date :meth:`datetime.date.today` (default is
+            None, which removes this field)
+        time : :class:`datetime.time`, optional
+            Time at which the series was created. Recommended to use current time `datetime.datetime.now().time()`
+            (default is None, which removes this field)
+        description : str, optional
+            SeriesDescription field in DICOM header (default is None, which removes this field)
+        number : int, optional
+            SeriesNumber field in DICOM header (default is None, which removes this field)
+        startNewIndex : int, optional
+            Starting index in the series' datasets to update (default is 0 which starts at the beginning and updates
+            all datasets)
+        """
+
         # Series instance ID is required and must be known
         if ID is None:
             return
@@ -153,10 +181,10 @@ class Series(list):
 
             # Update fields in dataset, remove optional ones if value is None
             dataset.SeriesInstanceUID = ID
-            datasetDeleteOrRemove(dataset, 'SeriesDate', date)
-            datasetDeleteOrRemove(dataset, 'SeriesTime', time)
-            datasetDeleteOrRemove(dataset, 'SeriesDescription', description)
-            datasetDeleteOrRemove(dataset, 'SeriesNumber', number)
+            datasetUpdateOrRemove(dataset, 'SeriesDate', date)
+            datasetUpdateOrRemove(dataset, 'SeriesTime', time)
+            datasetUpdateOrRemove(dataset, 'SeriesDescription', description)
+            datasetUpdateOrRemove(dataset, 'SeriesNumber', number)
 
     def isMethodValid(method):
         """Determines if a method is valid for sorting/combining this series
