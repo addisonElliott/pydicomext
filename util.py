@@ -279,15 +279,6 @@ def getZPositionsFromPatientInfo(series):
     # Get cross product of row and column cosines (gets normal to row/column cosines)
     zCosines = np.cross(rowCosines, colCosines)
 
-    # TODO Remove me when done
-    # Functions I would like to create:
-    # splitSeries (opposite to merge)
-    # preflatten? Basically find changes in key info between each dataset and see which one to accept
-    # flatten - With changes done by preflatten, it will basically take and merge two datasets into one
-    #   Does nothing for standard DICOM I don't think. But for multiframe, it'll create/update 3D volume for parent and
-    # update any parents that have been flattened and such. Sort of a way to merge two multiframe datasets
-    # Some sort of function to take a 3D volume and update the data on it.
-
     # Slice location is dot product of slice cosines and the image patient position
     return [np.dot(zCosines, position) for position in imagePositions]
 
