@@ -300,25 +300,44 @@ class Series(list):
 
         return sortSeries(self, methods, reverse, squeeze, warn, shapeTolerance, spacingTolerance)
 
-    def getSliceSpacingThickness(self):
-        """Return the slice spacing and slice thickness in the series
+    def getSliceSpacingThickness(self, warn=True, spacingOrThickness=False, thicknessOrSpacing=False, tolerance=0.1):
+        """Return the slice spacing and/or slice thickness in the series
 
         This function will obtain the slice spacing (0018, 0088) and slice thickness (0018, 0050) from the DICOM
-        metadata. If there are different slice spacings and/or thicknesses, then an array of the different values
-        will be returned.
+        metadata if it is available. Both of these fields are optional and thus can be omitted.
+
+        If there are differences between slice spacing or slice thicknesses between datasets, either a warning or error will be given depending on whether :obj:`warn` is True.
+
+        Since both of these fields are optional, the user can set :obj:`spaceOrThickness` or :obj:`thicknessOrSpacing` to only return one value. These parameters are mutually exclusive and specify what order to check for valid value. The first one that has a valid value will be returned. If both of these are set to False, then both of the values will be returned.
 
         This function becomes useful for retrieving the spacing between slices when your sort series method does not
         inherently contain that information. Examples include stack position which will return a spacing of 1.0 most
         likely indicating that the images are stacked numerically in order.
 
+        Parameters
+        ----------
+        warn : bool, optional
+            Whether to warn or throw an error for different slice thickness or spacing values (default is True which will display warnings rather than exceptions)
+        spacingOrThickness : bool, optional
+            Mutually exclusive option with :obj:`thicknessOrSpacing` that determines whether only one value should be returned. If True, thickness will be returned if available, otherwise spacing (default is False)
+        thicknessOrSpacing : bool, optional
+            Mutually exclusive option with :obj:`spacingOrThickness` that determines whether only one value should be returned. If True, spacing will be returned if available, otherwise thickness (default is False)
+        tolerance : float, optional
+            Amount of relative tolerance to allow between the thicknesses and spacings between datasets. Default value is 10% (0.10) which should be sufficient in most cases.
+
+        Raises
+        ------
+        Exception
+            If spacing or thicknesses are different between datasets **and** :obj:`warn` is False
+
         Returns
         -------
-        float or (N,) numpy.ndarray
-            Spacing between slices from series. Will return a single number if all of the series have the same value,
-            otherwise an array of the unique values are given.
-        float or (M,) numpy.ndarray, float or (N,) numpy.ndarray
-            Slice thickness from series. Will return a single number if all of the series have the same value,
-            otherwise an array of the unique values are given.
+        float
+            Returns spacing or thickness value based on whether :obj:`spacingOrThickness` or :obj:`thicknessOrSpacing` is set.
+
+            If neither is set, then this will be the slice spacing.
+        float, if :obj:`spacingOrThickness` and :obj:`thicknessOrSpacing` are False
+            Returns slice thickness
         """
 
         # Empty lists for the thickness and slice spacings for each series
@@ -331,32 +350,61 @@ class Series(list):
         # This should allow the user to tell if there is missing data because a negative thickness or spacing is invalid
         if self.isMultiFrame:
             for dataset in self:
-                imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices if
-                                          'SpacingBetweenSlices' in dataset.PixelMeasuresSequence[0] else -1.0)
-                imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness if 'SliceThickness' in
-                                        dataset.PixelMeasuresSequence[0] else -1.0)
+                if 'SpacingBetweenSlices' in dataset.PixelMeasuresSequence[0]:
+                    imageSliceSpacings.append(dataset.PixelMeasuresSequence[0].SpacingBetweenSlices)
+
+                if 'SliceThickness' in dataset.PixelMeasuresSequence[0]:
+                    imageThicknesses.append(dataset.PixelMeasuresSequence[0].SliceThickness)
         else:
             for dataset in self:
-                imageSliceSpacings.append(dataset.SpacingBetweenSlices if 'SpacingBetweenSlices' in
-                                          dataset else -1.0)
-                imageThicknesses.append(dataset.SliceThickness if 'SliceThickness' in dataset else -1.0)
+                if 'SpacingBetweenSlices' in dataset:
+                    imageSliceSpacings.append(dataset.SpacingBetweenSlices)
 
-        # Retrieve a list of unique image slice spacings from the series'
-        # If there is only one item in the array, they all have the same slice spacing and we will just return that
-        imageSliceSpacing = np.unique(imageSliceSpacings)
-        if len(imageSliceSpacing) == 1:
-            imageSliceSpacing = imageSliceSpacing[0]
+                if 'SliceThickness' in dataset:
+                    imageThicknesses.append(dataset.SliceThickness)
 
-        # Retrieve a list of unique image thicknesses from the series'
-        # If there is only one item in the array, they all have the same thickness and we will just return that
-        imageThickness = np.unique(imageThicknesses)
-        if len(imageThickness) == 1:
-            imageThickness = imageThickness[0]
+        # Check slice spacings to make sure they are the same, otherwise throw warning/error
+        # Any missing values are caught by checking the length of the array to the number of datasets
+        if len(imageSliceSpacings) > 0 and (len(imageSliceSpacings) != len(self) or not np.allclose(imageSliceSpacings,
+                                            imageSliceSpacings[0], rtol=tolerance)):
+            if warn:
+                logger.warning('Datasets SpacingBetweenSlices are not similar or some datasets are missing values')
+                logger.debug('Datasets spacings between slices: %s' % imageSliceSpacings)
+            else:
+                logger.debug('Datasets spacings between slices: %s' % imageSliceSpacings)
+                raise Exception('Datasets SpacingBetweenSlices are not similar or some datasets are missing values')
 
-        return imageSliceSpacing, imageThickness
+        # Check thicknesses to make sure they are the same, otherwise throw warning/error
+        # Any missing values are caught by checking the length of the array to the number of datasets
+        if len(imageThicknesses) > 0 and (len(imageThicknesses) != len(self) or not np.allclose(imageThicknesses,
+                                          imageThicknesses[0], rtol=tolerance)):
+            if warn:
+                logger.warning('Datasets SliceThickness are not similar or some datasets are missing values')
+                logger.debug('Datasets slice thickness: %s' % imageThicknesses)
+            else:
+                logger.debug('Datasets slice thickness: %s' % imageThicknesses)
+                raise Exception('Datasets SliceThickness are not similar or some datasets are missing values')
 
-    def combineSeries(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
-                      spacingTolerance=0.1):
+        if spacingOrThickness:
+            if imageSliceSpacings:
+                return imageSliceSpacings[0]
+            elif imageThicknesses:
+                return imageThicknesses[0]
+            else:
+                return None
+        elif thicknessOrSpacing:
+            if imageThicknesses:
+                return imageThicknesses[0]
+            elif imageSliceSpacings:
+                return imageSliceSpacings[0]
+            else:
+                return None
+        else:
+            return (imageSliceSpacings[0] if imageSliceSpacings else None,
+                    imageThicknesses[0] if imageThicknesses else None)
+
+    def combine(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
+                spacingTolerance=0.1):
         """Combines series into an N-D Numpy array and returns some information about the volume
 
         Many of the parameters are from the :meth:`sort` function which this function will call unless the series has
@@ -433,3 +481,4 @@ class Series(list):
 
 
 from .sortSeries import sortSeries
+from .combineSeries import combineSeries

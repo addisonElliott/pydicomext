@@ -144,8 +144,13 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     spacing = np.array(series.spacing + tuple(imageSpacing))
 
     # Create 3D volume from stack of 2D images
-    # Reshape the volume into the image shape
     volume = np.vstack(images)
+
+    # Ensure that we are able to resize the volume into the correct shape
+    if np.prod(shape) != np.prod(volume.shape):
+        raise Exception('Unable to reshape volume with %i elements into shape %s' % (np.prod(volume.shape), shape))
+
+    # Reshape the volume into the image shape
     volume = volume.reshape(shape)
 
     # DICOM uses LPS space

@@ -12,7 +12,7 @@ class Volume():
     Orientation: %s
     Origin: %s
     Spacing: %s
-    Volume shape: %s""" % (self.space, self.orientation, self.orientation, self.spacing, self.data.shape)
+    Volume shape: %s""" % (self.space, self.orientation, self.origin, self.spacing, self.data.shape)
 
     def __repr__(self):
         return self.__str__()
