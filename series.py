@@ -226,14 +226,24 @@ class Series(list):
 
     @property
     def volumeType(self):
+        """Type of volume based on how this series has been sorted
+
+        Returns :obj:`VolumeType.Unknown` if the series has not been sorted. Otherwise, uses the sorting methods used
+        to determine the type of volume this represents.
+        """
+
         return getTypeFromMethods(self._methods) if self._methods else VolumeType.Unknown
 
     @property
     def isSpatial(self):
+        """Whether or not the volume has a spatial component to it (meaning Z-axis)"""
+
         return self.volumeType() & VolumeType.Spatial
 
     @property
     def isTemporal(self):
+        """Whether or not the volume has a temporal component to it"""
+
         return self.volumeType() & VolumeType.Temporal
 
     def sort(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
