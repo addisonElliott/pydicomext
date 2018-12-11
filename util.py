@@ -280,27 +280,12 @@ def getZPositionsFromPatientInfo(series):
     zCosines = np.cross(rowCosines, colCosines)
 
     # TODO Remove me when done
-    # Okay, so here is a puzzling question that I do not know how I want to solve. What if there are multiple image orientations. In this case, I assume that's not going to happen and just use the first one. But do I do the same thing for the multi-frame DICOM as well. Is that a safe bet?
-    #
-    # One instance that I can think of is if a series contains multiple orientations. But, the thing about that is I probably wouldn't try to combine these. Well, yes I would, but just based on stack ID I guess, right?
-    # In that case, I would use sortSlices for StackID, then some sort of split command to split the series into multiple
-    # based on that parameter?
-    #
-    # If I am sorting based on position, which is what this function is used for. Then I don't see any reason why different orientations would be used because I **don't** know how you would even piece those together.
-    #
-    # Maybe on that note, I should change isMethodValid to include a check for that.
-    #
-    # Well shoot, what about we combining slices, we need that slice orientation somehow. Do we just assume that the slice orientation is the same?
-    #
-    # on that note, it's just the same as checking pixel spacing and such. Do we just assume that is the same all the way throughout for all images? Do we check it somewhere?
-    #
-    # So, I'm thinking maybe a function like checkPatientLocation() that will verify they are all the same or throws an Exception/warning. That will be called in sortSlices, well maybe not. I hate to call it multiple times, you know? Not sure..
-
     # Functions I would like to create:
     # splitSeries (opposite to merge)
     # preflatten? Basically find changes in key info between each dataset and see which one to accept
     # flatten - With changes done by preflatten, it will basically take and merge two datasets into one
-    #   Does nothing for standard DICOM I don't think. But for multiframe, it'll create/update 3D volume for parent and update any parents that have been flattened and such. Sort of a way to merge two multiframe datasets
+    #   Does nothing for standard DICOM I don't think. But for multiframe, it'll create/update 3D volume for parent and
+    # update any parents that have been flattened and such. Sort of a way to merge two multiframe datasets
     # Some sort of function to take a 3D volume and update the data on it.
 
     # Slice location is dot product of slice cosines and the image patient position

@@ -38,7 +38,6 @@ class Series(list):
         This should only be called once after the DICOM file has been loaded.
         """
 
-
         # Reset to original value
         self._isMultiFrame = False
 
@@ -65,7 +64,7 @@ class Series(list):
     def checkIsMultiFrame(self):
         """Check if this series is multiframe or not
 
-        This only needs to be called when new datasets are added or removed from the series. 
+        This only needs to be called when new datasets are added or removed from the series.
 
         This value is cached.
         """
@@ -306,6 +305,70 @@ class Series(list):
             imageThickness = imageThickness[0]
 
         return imageSliceSpacing, imageThickness
+
+    def combineSeries(self, methods=MethodType.Unknown, reverse=False, squeeze=False, warn=True, shapeTolerance=0.01,
+                      spacingTolerance=0.1):
+        """Combines series into an N-D Numpy array and returns some information about the volume
+
+        Many of the parameters are from the :meth:`sort` function which this function will call unless the series has
+        already been sorted once before.
+
+        After combining the series into a N-D volume, the following additional parameters are calculated and inserted
+        into the :class:`Volume` class:
+        * Origin
+        * Orientation
+        * Spacing
+        * Coordinate system
+
+        The volume will be shaped such that it adheres to C-order indexing rather than Fortran-order indexing. This
+        means that the slowest varying axis will be first and the fastest varying axis will be last. As an example, a
+        spatiotemporal volume would be indexed like (t, z, y, x). In accordance with this convention, the spacing
+        parameter will match the order of the dimensions. For example, the second element of the spacing array will
+        correspond to the spacing of the z-axis.
+
+        Two other parameters do **not** follow this convention however. The origin is Fortran-ordered, or Cartesian
+        indexed, such that the origin is (x, y, z). This was decided because the origin is a spatial point and that is
+        the typical way of representing a point. In a similar manner, the orientation matrix is constructed such that
+        the left column is the x cosines, and the right most column is the z cosines.
+
+        Parameters
+        ----------
+        series : Series
+        methods : MethodType or list(MethodType), optional
+            See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been
+            sorted yet.
+        reverse : bool, optional
+            See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been
+            sorted yet.
+        squeeze : bool, optional
+            See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been
+            sorted yet.
+        warn : bool, optional
+            See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been
+            sorted yet.
+        shapeTolerance : float, optional
+            See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been
+            sorted yet.
+        spacingTolerance : float, optional
+            See :meth:`sortSeries` for more information on this parameter. Only used if the series has **not** been
+            sorted yet.
+
+        Raises
+        ------
+        TypeError
+            If the series is empty
+        Exception
+            If datasets do not have the same image shape
+        Exception
+            If datasets do not have uniform image spacing or orientation
+
+        Returns
+        -------
+        Volume
+            Volume that contains Numpy array, origin, spacing and other relevant information
+        """
+
+        return combineSeries(self, methods, reverse, squeeze, warn, shapeTolerance, spacingTolerance)
 
     def __str__(self):
         return """Series %s

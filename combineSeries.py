@@ -21,6 +21,17 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     * Spacing
     * Coordinate system
 
+    The volume will be shaped such that it adheres to C-order indexing rather than Fortran-order indexing. This means
+    that the slowest varying axis will be first and the fastest varying axis will be last. As an example, a
+    spatiotemporal volume would be indexed like (t, z, y, x). In accordance with this convention, the spacing
+    parameter will match the order of the dimensions. For example, the second element of the spacing array will
+    correspond to the spacing of the z-axis.
+
+    Two other parameters do **not** follow this convention however. The origin is Fortran-ordered, or Cartesian indexed,
+    such that the origin is (x, y, z). This was decided because the origin is a spatial point and that is the typical
+    way of representing a point. In a similar manner, the orientation matrix is constructed such that the left column
+    is the x cosines, and the right most column is the z cosines.
+
     Parameters
     ----------
     series : Series
@@ -57,18 +68,6 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     Volume
         Volume that contains Numpy array, origin, spacing and other relevant information
     """
-
-
-    # TODO Redo this docstring
-
-    # TODO Swap rows/columns of pixel array or give option to do this
-    # Nope, we are going to use C-order indexing which is what pydicom abides by.
-    # Thus, shape of image is (frame, row, col) or (frame, y, x)
-    # This means any multidimensional info should be in front like:
-    # (t, z, y, x)
-    # Plenty of libraries in Python are using C-ordered indexing which Numpy defaults to so I want to stick with that.
-    # A simple transpose and reversal of data will work.
-    # Explain the C-ordering in docstring
 
     # If the series has not been sorted yet, then sort it
     # Or, if there are no datasets in the series then throw an error
