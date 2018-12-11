@@ -147,15 +147,3 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     # Return methods as well because the user may have set the method type to unknown to retrieve best method type, so
     # they would want to know the results
     return sortedSeries
-
-# TODO Document additional methods I want for future use, flatten, preflatten etc so I don't forget that
-# TODO Remove me when done
-# Functions I would like to create:
-# splitSeries (opposite to merge)
-# preflatten? Basically find changes in key info between each dataset and see which one to accept
-# flatten - With changes done by preflatten, it will basically take and merge two datasets into one
-#   Does nothing for standard DICOM I don't think. But for multiframe, it'll create/update 3D volume for parent and
-# update any parents that have been flattened and such. Sort of a way to merge two multiframe datasets
-# Some sort of function to take a 3D volume and update the data on it.
-
-# TODO Update README with **some** information at least

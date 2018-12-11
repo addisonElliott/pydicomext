@@ -181,6 +181,17 @@ Volume
     Volume shape: (12, 16, 256, 256)
 ```
 
+# Future Work
+
+* Create unit tests from local tests
+* Upload project to PyPi
+* Add *separate* function in Series class that will take a Volume class and apply it to the Series
+* Add a *flatten* function in Series class that will take a Series and flatten it into one Series.
+  * This is useful when combining two multi-frame Series into one. This will merge that into one series.
+  * Haven't thought about it much for what it will do for a standard DICOM.
+* Add a *prefaltten* function (maybe rename) that will look through a series and get all differences between them.
+  * This should exclude basic fields that will change such as slice location, image number, triger time, etc. Or allow some way of deciding what fields to exclude
+
 # License
 
 *pydicomext* has an MIT-based [license](https://github.com/addisonElliott/pydicomext/blob/master/LICENSE>).
