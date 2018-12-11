@@ -148,6 +148,5 @@ def sortSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=False,
     # they would want to know the results
     return sortedSeries
 
-# TODO Create combine method here
 # TODO Document additional methods I want for future use, flatten, preflatten etc so I don't forget that
 # TODO Update README with **some** information at least
