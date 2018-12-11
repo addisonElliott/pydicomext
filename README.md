@@ -24,6 +24,17 @@ git pull origin master
 
 For projects that use Git for tracking changes in their source code, it is recommended to utilize *pydicomext* as a Git submodule. The primary advantage of this approach over cloning the repository is that it will not track any changes in the pydicomext folder.
 
+Run the following commands from your project to include *pydicomext* in the project as Git submodule.
+```bash
+git submodule add -b master https://github.com/addisonElliott/pydicomext.git <PATH_HERE, e.g. util/pydicomext>
+git submodule init
+```
+
+Updating *pydicomext* can be done with the following commands from your project.
+```bash
+
+```
+
 XXX
 
 If the project that uses pydicomext is tracked using Git, then you can create a Git submodule to this repository in your Git repository. This will prevent Git from tracking changes in the pydicomext and rather will treat it as it's own Git repository.
