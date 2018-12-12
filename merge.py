@@ -23,7 +23,8 @@ def mergeSeries(seriess, indices=None):
         List of series to combine into one merged series
     indices : list(list(int)) or list(int), optional
         list of lists of integers that represent indices to place into the merged series (default is None, which uses
-        all indices from the series')
+        all indices from the series'). If any of the indices are None an empty list/tuple or anything besides an
+        integer, then no datasets from that series will not be added to the merged series.
 
     Raises
     ------
@@ -59,14 +60,14 @@ def mergeSeries(seriess, indices=None):
         # Loop through each series and add the specified datasets to the merged series
         for series, indices_ in zip(seriess, indices):
             # If the indices is iterable, then we add using itemgetter to retrieve all of the indices
-            # Otherwise, we just assume its an integer so we retrieve that slice normally and append it
+            # Otherwise, add to the list if it is an integer
             if hasattr(indices_, '__iter__') and len(indices_) > 0:
                 # If the length is exactly one then we need to append and not extend!
                 if len(indices_) == 1:
                     mergedSeries.append(operator.itemgetter(*indices_)(series))
                 else:
                     mergedSeries.extend(operator.itemgetter(*indices_)(series))
-            else:
+            elif isinstance(indices_, int):
                 mergedSeries.append(series[indices_])
 
         # Have to check multi frame at the end, we acnnot use series._isMultiFrame and boolean OR like above because we
