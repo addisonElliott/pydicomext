@@ -141,7 +141,10 @@ def combineSeries(series, methods=MethodType.Unknown, reverse=False, squeeze=Fal
     # spacing
     # This is prepended because we are using C-ordering meaning slower varying indices come first
     shape = series.shape + imageShape
-    spacing = np.array(series.spacing + tuple(imageSpacing))
+
+    # Spacing is flipped to go from C-order to Fortran-order, this way it stays consistent with the rest of the
+    # DICOM & Volume data (origin, orientation, etc)
+    spacing = np.flip(series.spacing + tuple(imageSpacing))
 
     # Create 3D volume from stack of 2D images
     volume = np.vstack(images)
