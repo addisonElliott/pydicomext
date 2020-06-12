@@ -70,7 +70,7 @@ class Series(list):
         """
 
         # Check all datasets for the parent attribute, if any are present, then we have multiframe data
-        self._isMultiFrame = any([hasattr(dataset, 'parent') for dataset in self])
+        self._isMultiFrame = any([hasattr(dataset, 'parent') and dataset.parent is not None for dataset in self])
 
     @property
     def isMultiFrame(self):
