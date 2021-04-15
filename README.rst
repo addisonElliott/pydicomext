@@ -1,8 +1,8 @@
 Introduction
 =================
-**pydicomext** provides additional functionality to the [pydicom](https://pydicom.github.io/pydicom/dev) Python package which allows reading and saving DICOM files. This module extends *pydicom* to loading entire directories of DICOM files and organizing the data in terms of patients, studies and series to allow for easy traversal and identification of scans. In addition, *pydicomext* contains functions to manipulate series, merge two series together and even combine series into a Numpy volume is provided.
+**pydicomext** provides additional functionality to the `pydicom <https://pydicom.github.io/pydicom/dev>`_ Python package which allows reading and saving DICOM files. This module extends *pydicom* to loading entire directories of DICOM files and organizing the data in terms of patients, studies and series to allow for easy traversal and identification of scans. In addition, *pydicomext* contains functions to manipulate series, merge two series together and even combine series into a Numpy volume is provided.
 
-**If you find this project to be useful in any way, then please let me know via a GitHub issue, email or however! This will motivate me to finish it and make it a PyPi library! Feedback is always welcome**
+**If you find this project to be useful in any way, then please let me know via a GitHub issue, email or however!**
 
 Installing
 =================
@@ -12,20 +12,20 @@ Prerequisites
 * Dependencies:
     * pydicom
 
-Installing pypdn
+Installing pydicomext
 -------------------------
 pydicomext is currently available on `PyPi <https://pypi.python.org/pypi/pydicomext/>`_. The simplest way to
-install alone is using ``pip`` at a command line::
+install is using ``pip`` at the command line::
 
   pip install pydicomext
 
-which installs the latest release.  To install the latest code from the repository (usually stable, but may have
+which installs the latest release. To install the latest code from the repository (usually stable, but may have
 undocumented changes or bugs)::
 
   pip install git+https://github.com/addisonElliott/pydicomext.git
 
 
-For developers, you can clone the pypdn repository and run the ``setup.py`` file. Use the following commands to get
+For developers, you can clone the pydicomext repository and run the ``setup.py`` file. Use the following commands to get
 a copy from GitHub and install all dependencies::
 
   git clone pip install git+https://github.com/addisonElliott/pydicomext.git
@@ -41,7 +41,8 @@ the updated code.
 
 Test and coverage
 =================
-Currently, I have a local test Python file with path-specific DICOM directories that are loaded. If I decide to upload this project to PyPi, I would want to create unit tests.
+
+Tests are currently non-existent.
 
 Examples
 =================
@@ -54,7 +55,6 @@ Loading and displaying DICOM directory information
     dicomDir = loadDirectory('DICOM DIRECTORY HERE')
 
     print(dicomDir)
-
 
 Result:
 
@@ -174,8 +174,8 @@ Result:
     Volume
         Space: left-posterior-superior
         Orientation: [[-5.80474000e-01  4.44949000e-01 -6.81959360e-01]
-     [ 2.95683000e-07  8.37502000e-01  5.46433310e-01]
-     [-8.14278000e-01 -3.17191000e-01  4.86148268e-01]]
+            [ 2.95683000e-07  8.37502000e-01  5.46433310e-01]
+            [-8.14278000e-01 -3.17191000e-01  4.86148268e-01]]
         Origin: [  30.0193 -150.763   271.145 ]
         Spacing: [1.      1.      1.47266 1.47266]
         Volume shape: (12, 16, 256, 256)
