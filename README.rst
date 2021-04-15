@@ -1,19 +1,19 @@
 Introduction
-=================
+==================================================
 **pydicomext** provides additional functionality to the `pydicom <https://pydicom.github.io/pydicom/dev>`_ Python package which allows reading and saving DICOM files. This module extends *pydicom* to loading entire directories of DICOM files and organizing the data in terms of patients, studies and series to allow for easy traversal and identification of scans. In addition, *pydicomext* contains functions to manipulate series, merge two series together and even combine series into a Numpy volume is provided.
 
 **If you find this project to be useful in any way, then please let me know via a GitHub issue, email or however!**
 
 Installing
-=================
+==================================================
 Prerequisites
--------------
+--------------------------------------------------
 * Python 3.4+
 * Dependencies:
     * pydicom
 
 Installing pydicomext
--------------------------
+--------------------------------------------------
 pydicomext is currently available on `PyPi <https://pypi.python.org/pypi/pydicomext/>`_. The simplest way to
 install is using ``pip`` at the command line::
 
@@ -40,15 +40,15 @@ to install in 'develop' or 'editable' mode, where changes can be made to the loc
 the updated code.
 
 Test and coverage
-=================
+==================================================
 
 Tests are currently non-existent.
 
 Examples
-=================
+==================================================
 
 Loading and displaying DICOM directory information
--------------
+--------------------------------------------------
 
 .. code-block:: python
 
@@ -139,7 +139,7 @@ Result:
                         ...
 
 Combining cMRI scans into a volume
--------------
+--------------------------------------------------
 
 .. code-block:: python
 
@@ -181,17 +181,17 @@ Result:
         Volume shape: (12, 16, 256, 256)
 
 Roadmap & Bugs
-=================
+==================================================
 - Create unit tests from local tests
 - Add *separate* function in Series class that will take a Volume class and apply it to the Series
 - Add a *flatten* function in Series class that will take a Series and flatten it into one Series.
-  - This is useful when combining two multi-frame Series into one. This will merge that into one series.
-  - Haven't thought about it much for what it will do for a standard DICOM.
+    - This is useful when combining two multi-frame Series into one. This will merge that into one series.
+    - Haven't thought about it much for what it will do for a standard DICOM.
 - Add a *prefaltten* function (maybe rename) that will look through a series and get all differences between them.
-  - This should exclude basic fields that will change such as slice location, image number, triger time, etc. Or allow some way of deciding what fields to exclude
+    - This should exclude basic fields that will change such as slice location, image number, triger time, etc. Or allow some way of deciding what fields to exclude
 
 Pull requests are welcome (and encouraged) for any or all issues!
 
 License
-=================
+==================================================
 *pydicomext* has an MIT-based [license](https://github.com/addisonElliott/pydicomext/blob/master/LICENSE>).
