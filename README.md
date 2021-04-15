@@ -2,49 +2,34 @@
 
 **pydicomext** provides additional functionality to the [pydicom](https://pydicom.github.io/pydicom/dev) Python package which allows reading and saving DICOM files. This module extends *pydicom* to loading entire directories of DICOM files and organizing the data in terms of patients, studies and series to allow for easy traversal and identification of scans. In addition, *pydicomext* contains functions to manipulate series, merge two series together and even combine series into a Numpy volume is provided.
 
-As of now, I do not feel comfortable releasing this project on PyPi yet because it is an early beta stage and I'm worried there are a bugs in the code. This project is used in multiple projects of mine and I did not want to have separate copies of the repository in case changes are made. **If you like this project and want to see it on PyPi, contact me somehow and let me know!***
-
 **If you find this project to be useful in any way, then please let me know via a GitHub issue, email or however! This will motivate me to finish it and make it a PyPi library! Feedback is always welcome**
 
 # Installation
 
-## Cloning Repository (for projects without Git)
+pydicomext is currently available on `PyPi <https://pypi.python.org/pypi/pydicomext/>`_. The simplest way to
+install alone is using ``pip`` at a command line::
 
-Cloning the repository can be done with the following commands in a Bash or Git Bash terminal with Git installed. In addition, Git GUIs such as GitHub Desktop, TortoiseGit, etc can be used to clone the repository as well.
-```bash
-git clone https://github.com/addisonElliott/pydicomext.git
-```
+  pip install pydicomext
 
-Updating *pydicomext* can be done with the following commands within the pydicomext folder or once again by using a Git GUI.
-```bash
-git pull origin master
-```
+which installs the latest release.  To install the latest code from the repository (usually stable, but may have
+undocumented changes or bugs)::
 
-## Adding as Git Submodule (for projects with Git)
+  pip install git+https://github.com/addisonElliott/pydicomext.git
 
-For projects that use Git for tracking changes in their source code, it is recommended to utilize *pydicomext* as a Git submodule. The primary advantage of this approach over cloning the repository is that it will not track any changes in the pydicomext folder.
 
-Run the following commands from your project to include *pydicomext* in the project as Git submodule.
-```bash
-git submodule add -b master https://github.com/addisonElliott/pydicomext.git <PATH_HERE, e.g. util/pydicomext>
-git submodule init
-```
+For developers, you can clone the pydicomext repository and run the ``setup.py`` file. Use the following commands to get
+a copy from GitHub and install all dependencies::
 
-Updating *pydicomext* can be done with the following commands from your project.
-```bash
-git submodule update --remote
-```
+  git clone pip install git+https://github.com/addisonElliott/pydicomext.git
+  cd pydicomext
+  pip install .
 
-**Note:** For cloning **your project** with *pydicomext* as a Git submodule, there are a few extra steps that one must perform to clone the pydicomext module as well.
-```bash
-git submodule init
-git submodule update
-```
+or, for the last line, instead use::
 
-You can do this all in one command when cloning the repository by adding the *recurse-submodules* option.
-```bash
-git clone --recurse-submodules <YOUR_REPO_LINK_HERE>
-```
+  pip install -e .
+
+to install in 'develop' or 'editable' mode, where changes can be made to the local working code and Python will use
+the updated code.
 
 # Test and Coverage
 
@@ -184,7 +169,6 @@ Volume
 # Future Work
 
 * Create unit tests from local tests
-* Upload project to PyPi
 * Add *separate* function in Series class that will take a Volume class and apply it to the Series
 * Add a *flatten* function in Series class that will take a Series and flatten it into one Series.
   * This is useful when combining two multi-frame Series into one. This will merge that into one series.

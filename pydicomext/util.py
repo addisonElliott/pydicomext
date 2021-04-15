@@ -366,7 +366,7 @@ def getSpacingDims(coordinates, warn=True, shapeTolerance=0.01, spacingTolerance
     Returns
     -------
     list(int)
-        List of shape of each dimension
+        List of shapgee of each dimension
     list(float)
         List of spacing per dimension
     """
