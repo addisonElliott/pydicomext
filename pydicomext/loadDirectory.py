@@ -3,10 +3,10 @@ import os
 import pydicom
 import pydicom.filereader
 
-from .patient import Patient
-from .dicomDir import DicomDir
-from .series import Series
-from .study import Study
+from pydicomext.patient import Patient
+from pydicomext.dicomDir import DicomDir
+from pydicomext.series import Series
+from pydicomext.study import Study
 
 
 def loadDirectory(directory, patientID=None, studyID=None, seriesID=None):

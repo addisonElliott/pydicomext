@@ -1,7 +1,7 @@
 import pydicom
 
-from .util import *
-from .series import Series
+from pydicomext.util import *
+from pydicomext.series import Series
 
 pydicom.config.datetime_conversion = True
 

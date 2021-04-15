@@ -1,6 +1,6 @@
 from pydicom.dataset import Dataset
 
-from .study import Study
+from pydicomext.study import Study
 
 
 class Patient(dict):

@@ -1,6 +1,6 @@
 import operator
 
-from .series import Series
+from pydicomext.series import Series
 
 
 def mergeSeries(seriess, indices=None):

@@ -1,8 +1,8 @@
 import numpy as np
 import pydicom
 
-from .util import *
-from .volume import Volume
+from pydicomext.util import *
+from pydicomext.volume import Volume
 
 pydicom.config.datetime_conversion = True
 
