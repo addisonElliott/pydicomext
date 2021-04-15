@@ -1,6 +1,6 @@
 from pydicom.dataset import Dataset
 
-from .patient import Patient
+from pydicomext.patient import Patient
 
 
 class DicomDir(dict):

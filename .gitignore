@@ -114,3 +114,6 @@ venv.bak/
 
 # Ignore tests folder
 tests
+
+# Ignore dist folder which contains the Python compiled code for creating a standalone executable
+dist

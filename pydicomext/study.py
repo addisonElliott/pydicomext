@@ -1,6 +1,6 @@
 from pydicom.dataset import Dataset
 
-from .series import Series
+from pydicomext.series import Series
 
 
 class Study(dict):

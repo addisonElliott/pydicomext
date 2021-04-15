@@ -1,0 +1,24 @@
+name: Generate Changelog
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: heinrichreimer/action-github-changelog-generator@v2.2 
+        id: generate-changelog
+        with:
+          # Username of the owner of target GitHub repo.
+          user: addisonElliott
+          unreleasedOnly: true
+          unreleased: true
+          author: true
+          issues: true
+          issuesWoLabels: true
+          pullRequests: true
+          prWoLabels: true
+          # To make more than 50 requests per hour your GitHub token is required.
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "${{ steps.generate-changelog.outputs.changelog }}"

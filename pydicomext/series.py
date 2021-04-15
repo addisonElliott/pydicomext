@@ -1,4 +1,4 @@
-from .util import *
+from pydicomext.util import *
 
 
 class Series(list):
